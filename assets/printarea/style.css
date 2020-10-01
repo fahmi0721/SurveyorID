@@ -1,0 +1,13 @@
+/* sembunyikan judul */
+
+.title {
+    display: none;
+}
+
+.zoom {
+    width: 100%;
+    max-width: 90px;
+    height: auto;
+    border-radius: 3px;
+    display: none;
+}
