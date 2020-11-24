@@ -7,6 +7,7 @@ class Auth extends CI_Controller
     {
         parent::__construct();
         $this->load->library('form_validation');
+        date_default_timezone_set('Asia/Makassar');
     }
     public function index()
     {
@@ -33,15 +34,26 @@ class Auth extends CI_Controller
         $password = $this->input->post('password');
         $user = $this->db->get_where('dt_user', ['email' => $email])->row_array();
         // Jika usernya ada
-        if ($user) {    
+        if ($user) {
             if ($user['is_active'] == 1) {
                 // cek password 
                 if (password_verify($password, $user['password'])) {
                     $data = [
                         'email' => $user['email'],
-                        'role_id' => $user['role_id']
+                        'role_id' => $user['role_id'],
+                        'id_user_login' => $user['id_user']
                     ];
                     $this->session->set_userdata($data);
+                    // kirim ke log 
+                    $date = date("Y-m-d");
+                    $time = date("H:i:s");
+                    $this->db->insert('dt_logs', [
+                        'id_user' => $user['id_user'],
+                        'logs' => "User Login Sukses : " . $data['email'],
+                        'id_sub_menu' => '2',
+                        'tgl' => $date,
+                        'waktu' => $time
+                    ]);
                     // redirect user 
                     if ($user['role_id'] == 1) {
                         redirect('admin');
@@ -94,18 +106,43 @@ class Auth extends CI_Controller
                 'date_created' => time()
             ];
 
-            $this->db->insert('dt_user', $data);
-            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert"> Congratulation! Account has been created. Please Activate. </div>');
-            redirect('auth/registration');
+            $register = $this->db->insert('dt_user', $data);
+            if ($register) {
+                // ambil idnya 
+                $iduser = $this->db->get_where('dt_user', ['email' => $data['email']])->row_array();
+                $date = date("Y-m-d");
+                $time = date("H:i:s");
+                $this->db->insert('dt_logs', [
+                    'id_user' => $iduser['id_user'],
+                    'logs' => "New Account Created : " . $data['email'],
+                    'id_sub_menu' => '2',
+                    'tgl' => $date,
+                    'waktu' => $time
+                ]);
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert"> Congratulation! Account has been created. Please contact the administrator for activate your account. </div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert"> Error! Unable to create Account. Please contact your admin. </div>');
+            }
+            redirect('auth');
         }
     }
 
     public function logout()
     {
+        // kirim Ke Log 
+        $datetime = date("Y-m-d");
+        $time = date("H:i:s");
+        $this->db->insert('dt_logs', [
+            'id_user' => $this->session->userdata('id_user_login'),
+            'logs' => "User Logout dari aplikasi",
+            'id_sub_menu' => 2,
+            'tgl' => $datetime,
+            'waktu' => $time
+        ]);
         // mengakhiri sesion login dengan unset_userdata
         $this->session->unset_userdata('email');
         $this->session->unset_userdata('role_id');
-
+        $this->session->unset_userdata('id_user_login');
         $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">You have been logged out! </div>');
         redirect('auth');
     }

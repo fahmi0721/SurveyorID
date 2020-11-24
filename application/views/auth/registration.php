@@ -1,5 +1,6 @@
 <div class="container">
 
+    <h1 class="h1 text-info mt-5 pt-3 text-center font-weight-bold" style="text-shadow: 2px 2px black;"><b>WASLAI REHABDAS PTSI</b> </h1>
     <div class="card o-hidden border-0 shadow-lg my-5 col-lg-6 mx-auto">
         <div class="card-body p-0">
             <!-- Nested Row within Card Body -->
@@ -8,7 +9,8 @@
                 <div class="col-lg">
                     <div class="p-5">
                         <div class="text-center">
-                            <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
+                            <h1 class="h4 text-gray-900 mb-2 font-weight-bold">Create an Account!</h1>
+                            <hr>
                         </div>
                         <?= $this->session->flashdata('message'); ?>
                         <form class="user" method="post" action="<?= base_url('auth/registration'); ?>">

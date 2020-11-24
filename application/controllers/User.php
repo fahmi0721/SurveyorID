@@ -9,6 +9,7 @@ class User extends CI_Controller
     {
         parent::__construct();
         cek_userLogin();
+        date_default_timezone_set('Asia/Makassar');
     }
 
     public function index()
@@ -26,6 +27,11 @@ class User extends CI_Controller
     {
         $data['title'] = 'Edit Profile';
         $data['user'] = $this->db->get_where('dt_user', ['email' => $this->session->userdata('email')])->row_array();
+        // cek id menu 
+        $sql = $this->db->get_where('user_sub_menu', ['title' => $data['title']])->row_array();
+        $data['id_menu'] = $sql['id'];
+        $datetime = date("Y-m-d");
+        $waktu = date("H:i:s");
 
         $this->form_validation->set_rules('name', 'Full Name', 'required|trim');
         if ($this->form_validation->run() == false) {
@@ -45,7 +51,7 @@ class User extends CI_Controller
                 $config['allowed_types'] = 'gif|jpg|jpeg|png';
                 $config['max_size'] = '200';
                 $config['upload_path'] = 'assets/img/profile/';
-                
+
                 // Meng upload file 
                 $this->load->library('upload', $config);
                 // jika gambar berhasil di upload ?
@@ -58,13 +64,12 @@ class User extends CI_Controller
                     }
                     // mengambil nama file baru image yg di upload 
                     $new_image = $this->upload->data('file_name');
-
                     $this->db->set('image', $new_image);
                 } else {
                     $this->session->set_flashdata(
                         'msgUpload',
                         '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>Picture filed to upload !</strong>
+                    <strong>Picture failed to upload !</strong>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button> </div>'
                     );
@@ -73,21 +78,32 @@ class User extends CI_Controller
 
             $this->db->set('nm_user', $name);
             $this->db->where('email', $email);
-            $this->db->update('dt_user');
-
-            $this->session->set_flashdata(
-                'message',
-                '<div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Your profile has been updated!</strong>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button> </div>'
-            );
+            $update = $this->db->update('dt_user');
+            if ($update) {
+                $this->session->set_flashdata(
+                    'message',
+                    '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Your profile has been updated!</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button> </div>'
+                );
+                // kirim Ke Log 
+                $this->db->insert('dt_logs', [
+                    'id_user' => $this->session->userdata('id_user_login'),
+                    'logs' => "User " . $email . " Update data profile.",
+                    'id_sub_menu' => $data['id_menu'],
+                    'tgl' => $datetime,
+                    'waktu' => $waktu
+                ]);
+            }
             redirect('user/edit');
         }
     }
 
     public function changepassword()
     {
+        $datetime = date("Y-m-d");
+        $waktu = date("H:i:s");
         $data['title'] = 'Change Password';
         $data['user'] = $this->db->get_where('dt_user', ['email' => $this->session->userdata('email')])->row_array();
 
@@ -130,15 +146,24 @@ class User extends CI_Controller
 
                     $this->db->set('password', $password_hash);
                     $this->db->where('email', $this->session->userdata('email'));
-                    $this->db->update('dt_user');
-
-                    $this->session->set_flashdata(
-                        'message',
-                        '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>Password Changed!</strong>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span></button> </div>'
-                    );
+                    $update = $this->db->update('dt_user');
+                    if ($update) {
+                        // kirim Ke Log 
+                        $this->db->insert('dt_logs', [
+                            'id_user' => $this->session->userdata('id_user_login'),
+                            'logs' => "User change the password.",
+                            'id_sub_menu' => $data['id_menu'],
+                            'tgl' => $datetime,
+                            'waktu' => $waktu
+                        ]);
+                        $this->session->set_flashdata(
+                            'message',
+                            '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Password Changed!</strong>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button> </div>'
+                        );
+                    }
                     redirect('user/changepassword');
                 }
             }

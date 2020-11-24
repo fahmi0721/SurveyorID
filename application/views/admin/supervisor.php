@@ -35,18 +35,18 @@
                         ?>
                             <div class="table-responsive text-sm">
                                 <table class="table table-sm table-hover " id="dataTable">
-                                    <?php foreach ($users as $usr) : ?>
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Nama</th>
-                                                <th>Email</th>
-                                                <th>Foto</th>
-                                                <th>Keterangan</th>
-                                                <th>aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nama</th>
+                                            <th>Email</th>
+                                            <th>Foto</th>
+                                            <th>Keterangan</th>
+                                            <th>aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($users as $usr) : ?>
                                             <tr>
                                                 <td><?= $no++; ?></td>
                                                 <td><?= $usr['nm_user']; ?></td>
@@ -57,8 +57,8 @@
                                                     <a href="<?= base_url('admin/anggotaDel/') . $usr['id_user_anggota']; ?>" data-toggle="tooltip" data-placement="left" title="Hapus Anggota" class="badge badge-danger p-2" onclick="return confirm('Yakin akan menghapus anggota ini?')">Delete</a>
                                                 </td>
                                             </tr>
-                                        </tbody>
-                                    <?php endforeach; ?>
+                                        <?php endforeach; ?>
+                                    </tbody>
 
                                 </table>
                             </div>
@@ -99,7 +99,14 @@
                         <select name="id_anggota" id="id_anggota" class="form-control" required>
                             <option value="" selected>Select User</option>
                             <?php foreach ($nonvis as $nonsr) : ?>
-                                <option value="<?= $nonsr['id_user']; ?>"> <?= $nonsr['nm_user']; ?> </option>
+                                <?php
+                                $SqlAnggota = $this->db->get_where('user_anggota', ['id_anggota' => $nonsr['id_user']])->row_array();
+                                if (empty($SqlAnggota)) {
+                                ?>
+                                    <option value="<?= $nonsr['id_user']; ?>"> <?= $nonsr['nm_user']; ?> </option>
+                                <?php
+                                }
+                                ?>
                             <?php endforeach; ?>
                         </select>
                     </div>

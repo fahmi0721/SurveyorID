@@ -8,6 +8,7 @@ class Lokasi extends CI_Controller
     {
         parent::__construct();
         cek_userLogin();
+        date_default_timezone_set('Asia/Makassar');
     }
     public function index()
     {

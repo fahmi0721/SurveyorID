@@ -75,9 +75,9 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
+	'hostname' => '34.101.171.62',
+	'username' => 'surveiid',
+	'password' => 'survei12341234',
 	'database' => 'bpdas',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

@@ -13,6 +13,7 @@
             </button>
 
             <!-- Topbar Navbar -->
+            <p class="text-lg text-gray-500 pt-3 text-center font-weight-bold">WASLAI REHABDAS PTSI </p>
             <ul class="navbar-nav ml-auto">
 
                 <div class="topbar-divider d-none d-sm-block"></div>
@@ -20,7 +21,7 @@
                 <!-- Nav Item - User Information -->
                 <li class="nav-item dropdown no-arrow">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $user['nm_user']; ?> </span>
+                        <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $user['nm_user']; ?></span>
                         <img class="img-profile rounded-circle" src="<?= base_url('assets/img/profile/') . $user['image']; ?> ">
                     </a>
                     <!-- Dropdown - User Information -->

@@ -63,7 +63,6 @@
                 <i class="fas fa-fw fa-sign-out-alt"></i>
                 <span>Logout</span></a>
         </li>
-
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
 
@@ -71,6 +70,8 @@
         <div class="text-center d-none d-md-inline">
             <button class="rounded-circle border-0" id="sidebarToggle"></button>
         </div>
-
+        <?php
+        // echo $id_menu['id'];
+        ?>
 </ul>
 <!-- End of Sidebar -->

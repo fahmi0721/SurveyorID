@@ -10,6 +10,15 @@
     <meta name="author" content="">
 
     <title><?= $title; ?></title>
+    <script>
+        function printContent(el) {
+            var restorepage = document.body.innerHTML;
+            var printcontent = document.getElementById(el).innerHTML;
+            document.body.innerHTML = printcontent;
+            window.print();
+            document.body.innerHTML = restorepage;
+        }
+    </script>
 
     <!-- Custom fonts for this template-->
     <link href="<?= base_url('assets/'); ?>vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -21,9 +30,35 @@
     <!-- Custom styles for page Data Tables -->
     <link href="<?= base_url('assets/'); ?>vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="<?= base_url('assets/'); ?>vendor/jquery/jquery.min.js"></script>
+    <script src="<?= base_url('assets/'); ?>vendor/chart.js/Chart.min.js"></script>
     <style>
+        .scrol {
+            clear: both;
+            border: 0px solid 3FF6600;
+            overflow: auto;
+            float: left;
+            width: 100%;
+            content: inherit;
+        }
+
+        .texthoverwhite {
+            color: blue;
+        }
+
+        .reporthover {
+            color: #000000;
+        }
+
+        .texthoverwhite:hover {
+            color: #ffffff;
+        }
+
         .petakHov:hover {
-            background-color: white;
+            background-color: lightgrey;
+        }
+
+        .hovbg:hover {
+            background-color: #f2f2f2;
         }
 
         .scroll {
@@ -35,6 +70,23 @@
             width: 100%;
         }
 
+        .scroll:hover {
+            background-color: #f2f2f2;
+        }
+
+        .scrolllokasi {
+            clear: both;
+            border: 0px solid 3FF6600;
+            max-height: 210px;
+            overflow: auto;
+            float: left;
+            width: 100%;
+        }
+
+        .scrolllokasi:hover {
+            background-color: ghostwhite;
+        }
+
         .tooltip-inner {
             background-color: rgba(9, 9, 9, .6);
             color: #ffffff;
@@ -42,26 +94,12 @@
             border: 1px solid #737373;
         }
 
-        .zoom {
-            transition: transform .2s;
-            width: 100%;
-            max-width: 90px;
-            height: 50px;
-            border-radius: 3px;
-            margin: 0 auto;
-        }
-
         .zoom:hover {
-            width: 100%;
-            max-width: 120px;
-            border-radius: 0px;
-            height: auto;
-            -ms-transform: scale(2.9);
+            -ms-transform: scale(1.2);
             /* IE 9 */
-            -webkit-transform: scale(2.9);
+            -webkit-transform: scale(1.2);
             /* Safari 3-8 */
-            transform: scale(2.9);
-            margin-left: -35px;
+            transform: scale(1.2);
         }
     </style>
 

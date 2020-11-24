@@ -8,13 +8,40 @@ class Input extends CI_Controller
     {
         parent::__construct();
         cek_userLogin();
+        date_default_timezone_set('Asia/Makassar');
+    }
+
+    public function LapSatuanAjax()
+    {
+        $idnya = $this->input->post('id', TRUE);
+        $this->load->model('Menu_model', 'kecam');
+        $data = $this->kecam->getSatuanKegiatan($idnya);
+        echo json_encode($data);
+    }
+
+    public function BahanSatuanAjax()
+    {
+        $idnya = $this->input->post('id', TRUE);
+        $this->load->model('Menu_model', 'kecam');
+        $data = $this->kecam->getSatuanBahan($idnya);
+        echo json_encode($data);
+    }
+
+    public function bibitSatuanAjax()
+    {
+        $idnya = $this->input->post('id', TRUE);
+        $this->load->model('Menu_model', 'kecam');
+        $data = $this->kecam->getSatuanBibit($idnya);
+        echo json_encode($data);
     }
 
     public function index()
     {
+        $this->load->model('Log_model', 'lognya');
         $data['title'] = 'Pengawasan Harian';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
+
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
@@ -25,6 +52,7 @@ class Input extends CI_Controller
     {
         $idnya = $this->input->post('id', TRUE);
         $this->load->model('Menu_model', 'lap');
+        $data = $this->lap->getLapanganKegiatnModel($idnya);
         $data = $this->lap->getLapanganKegiatnModel($idnya);
         echo json_encode($data);
     }
@@ -49,6 +77,7 @@ class Input extends CI_Controller
         }
         echo json_encode($rs);
     }
+
     public function bibitAjax()
     {
         $idnya = $this->input->post('id', TRUE);
@@ -133,6 +162,8 @@ class Input extends CI_Controller
         $idnya = $this->input->post('id', TRUE);
         $this->load->model('Menu_model', 'kepet');
         $data = $this->kepet->getBlokPetajax($idnya)->result();
+        // print_r($data);
+
         echo json_encode($data);
     }
 
@@ -178,32 +209,6 @@ class Input extends CI_Controller
     public function harianbibitinput()
     {
         $adname = time();
-        // fungsi kompres file gambar
-        function compressImageBibit($source, $destination, $quality)
-        {
-            // Mendapatkan info gambar
-            $imgInfo = getimagesize($source);
-            $mime = $imgInfo['mime'];
-            // Membuat gambar baru dari file yang diupload
-            switch ($mime) {
-                case 'image/jpeg':
-                    $image = imagecreatefromjpeg($source);
-                    break;
-                case 'image/png':
-                    $image = imagecreatefrompng($source);
-                    break;
-                case 'image/gif':
-                    $image = imagecreatefromgif($source);
-                    break;
-                default:
-                    $image = imagecreatefromjpeg($source);
-            }
-            // simpan gambar
-            imagejpeg($image, $destination, $quality);
-            // Return gambar yang dikompres
-            return $destination;
-        }
-
         $data = [
             'id_spkbibit' => $this->input->post('jenisbibit', true),
             'nilai_harianbibit' => $this->input->post('volume', true),
@@ -240,7 +245,7 @@ class Input extends CI_Controller
                 // ketika melakukan submit file foto dikompres dan upload
                 if (!empty($_FILES["foto"]["name"])) {
                     // Lokasi path untuk upload
-                    $uploadPath = FCPATH . "assets/img/peng-bibit/";
+                    $uploadPath = "assets/img/peng-bibit/";
                     // File info
                     $fileName = basename($adname . '-' . $_FILES["foto"]["name"]);
                     $imageUploadPath = $uploadPath . $fileName;
@@ -251,11 +256,11 @@ class Input extends CI_Controller
                         // array gambar sementara
                         $imageTemp = $_FILES["foto"]["tmp_name"];
                         // Kompres dan upload data
-                        $compressedImage = compressImageBibit($imageTemp, $imageUploadPath, 35);
-                        if ($compressedImage) {
-                            echo " <script>alert('Gambar " . $fileName . " diupload')</script> ";
+                        $upl = copy($imageTemp, $imageUploadPath); //compressImageBibit($imageTemp, $imageUploadPath, 35);
+                        if ($upl) {
+                            //   $this->session->set_flashdata('message','ok');
                         } else {
-                            echo " <script>alert('Gambar " . $fileName . " gagal diupload')</script> ";
+                            // $this->session->set_flashdata('message',"gagal");
                         }
                     } else {
                         $this->session->set_flashdata(
@@ -267,10 +272,20 @@ class Input extends CI_Controller
                         );
                     }
                 }
+                $datetime = date("Y-m-d");
+                $waktu = date("H:i:s");
+                // kirim Ke Log 
+                $this->db->insert('dt_logs', [
+                    'id_user' => $this->session->userdata('id_user_login'),
+                    'logs' => "Input Data Harian Bibit : " . $data['petugas_lap'],
+                    'id_sub_menu' => 7,
+                    'tgl' => $datetime,
+                    'waktu' => $waktu
+                ]);
                 $this->session->set_flashdata(
                     'message',
                     '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong> Sukses! </strong> SPK Bibit Berhasil ditambahkan.
+                    <strong> Sukses! </strong> Pengawasan Harian Bibit Berhasil di Kirim.
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button> </div>'
                 );
@@ -290,32 +305,6 @@ class Input extends CI_Controller
     public function harianbahaninput()
     {
         $adname = time();
-        // fungsi kompres file gambar
-        function compressImage($source, $destination, $quality)
-        {
-            // Mendapatkan info gambar
-            $imgInfo = getimagesize($source);
-            $mime = $imgInfo['mime'];
-            // Membuat gambar baru dari file yang diupload
-            switch ($mime) {
-                case 'image/jpeg':
-                    $image = imagecreatefromjpeg($source);
-                    break;
-                case 'image/png':
-                    $image = imagecreatefrompng($source);
-                    break;
-                case 'image/gif':
-                    $image = imagecreatefromgif($source);
-                    break;
-                default:
-                    $image = imagecreatefromjpeg($source);
-            }
-            // simpan gambar
-            imagejpeg($image, $destination, $quality);
-            // Return gambar yang dikompres
-            return $destination;
-        }
-
         $data = [
             'id_spkbahan' => $this->input->post('kegbahan', true),
             'nilai_harianbahan' => $this->input->post('volume', true),
@@ -333,10 +322,6 @@ class Input extends CI_Controller
             'id_user' => $this->input->post('id_user', true),
             'tgl_create' => time()
         ];
-        // $input = $this->db->insert('harianbahan', $data);
-        // print_r($this->db->error());
-        // echo "<pre>";
-        // print_r($data);
 
         $JumlahSpkBahan = $this->getJumlahSpkBahan($data['id_spkbahan']);
         $JumlahBahanYangRealisasi = $this->getRealisasiBahan($data['id_spkbahan']);
@@ -366,7 +351,7 @@ class Input extends CI_Controller
                         // array gambar sementara
                         $imageTemp = $_FILES["foto"]["tmp_name"];
                         // Kompres dan upload data
-                        $compressedImage = compressImage($imageTemp, $imageUploadPath, 35);
+                        $compressedImage = copy($imageTemp, $imageUploadPath);
                         if ($compressedImage) {
                             echo " <script>alert('Gambar " . $fileName . " ter upload')</script> ";
                         } else {
@@ -382,10 +367,20 @@ class Input extends CI_Controller
                         );
                     }
                 }
+                $datetime = date("Y-m-d");
+                $waktu = date("H:i:s");
+                // kirim Ke Log 
+                $this->db->insert('dt_logs', [
+                    'id_user' => $this->session->userdata('id_user_login'),
+                    'logs' => "Input Data Harian Bahan : " . $data['petugas_lap'],
+                    'id_sub_menu' => 7,
+                    'tgl' => $datetime,
+                    'waktu' => $waktu
+                ]);
                 $this->session->set_flashdata(
                     'message',
                     '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong> Sukses! </strong> SPK Bahan Berhasil ditambahkan.
+                    <strong> Sukses! </strong> Pengawawsan Harian Bahan Berhasil di Kirim.
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button> </div>'
                 );
@@ -405,35 +400,12 @@ class Input extends CI_Controller
     public function harianlapanganinput()
     {
         $adname = time();
-        // fungsi kompres file gambar
-        function compressImageLap($source, $destination, $quality)
-        {
-            // Mendapatkan info gambar
-            $imgInfo = getimagesize($source);
-            $mime = $imgInfo['mime'];
-            // Membuat gambar baru dari file yang diupload
-            switch ($mime) {
-                case 'image/jpeg':
-                    $image = imagecreatefromjpeg($source);
-                    break;
-                case 'image/png':
-                    $image = imagecreatefrompng($source);
-                    break;
-                case 'image/gif':
-                    $image = imagecreatefromgif($source);
-                    break;
-                default:
-                    $image = imagecreatefromjpeg($source);
-            }
-            // simpan gambar
-            imagejpeg($image, $destination, $quality);
-            // Return gambar yang dikompres
-            return $destination;
-        }
         // upload video 
+        //ini_set('post_max_size', '64M');
+        //ini_set('upload_max_filesize', '64M');
         if (!empty($_FILES['video']['name'])) {
-            $config['upload_path'] =  FCPATH . 'assets/img/peng-video/';
-            $config['allowed_types'] = 'mp4|3gp|flv';
+            $config['upload_path'] =  './assets/img/peng-video/';
+            $config['allowed_types'] = 'mp4|3gp|flv|ts';
             $config['max_size'] = '20480';
             $config['file_name'] = $adname . '-' . $_FILES['video']['name'];
             $this->load->library('upload', $config);
@@ -520,7 +492,7 @@ class Input extends CI_Controller
                         // array gambar sementara
                         $imageTemp = $_FILES["foto"]["tmp_name"];
                         // Kompres dan upload data
-                        $compressedImage = compressImageLap($imageTemp, $imageUploadPath, 35);
+                        $compressedImage = copy($imageTemp, $imageUploadPath);
                         if ($compressedImage) {
                             echo " <script>alert('Gambar " . $fileName . " ter upload')</script> ";
                         } else {
@@ -536,10 +508,21 @@ class Input extends CI_Controller
                         );
                     }
                 }
+
+                $datetime = date("Y-m-d");
+                $waktu = date("H:i:s");
+                // kirim Ke Log 
+                $this->db->insert('dt_logs', [
+                    'id_user' => $this->session->userdata('id_user_login'),
+                    'logs' => "Input Data Harian Lapangan : " . $data['petugas_lap'],
+                    'id_sub_menu' => 7,
+                    'tgl' => $datetime,
+                    'waktu' => $waktu
+                ]);
                 $this->session->set_flashdata(
                     'message',
                     '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong> Sukses! </strong> Pengawasan Harian Lapangan Berhasil ditambahkan.
+                    <strong> Sukses! </strong> Pengawasan Harian Lapangan Berhasil di Kirim.
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button> </div>'
                 );
@@ -556,77 +539,92 @@ class Input extends CI_Controller
         redirect('input/harianlapangan');
     }
 
-    public function mingguan()
+    public function view()
     {
-        $data['title'] = 'Pengawasan Mingguan';
+        $data['title'] = 'View Pengawasan';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
         // Query Kabupaten 
         $data['kabupaten'] = $this->db->get('dt_kabupaten')->result_array();
-        // Query Kecamatan 
-        $this->load->model('Menu_model', 'kec');
-        $data['kecamatan'] = $this->kec->getKec();
+        // Query Lokasi berdasarkan user login
+        $this->load->model('Report_model', 'loask');
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
-        $this->load->view('input/mingguan', $data);
+        $this->load->view('input/view', $data);
         $this->load->view('templates/footer');
     }
-    public function bahan()
+    public function viewdetailpengawasan($id_petak)
     {
-        $data['title'] = 'Pengawasan Mingguan';
+        $data['title'] = 'View Pengawasan';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
-
-        $data['id'] = $this->input->post('id_form', true);
-        $data['kabupat'] = $this->db->get_where('dt_kabupaten', ['id_kabupaten' => $this->input->post('kabupat', true)])->row_array();
-        $data['kecamat'] = $this->db->get_where('dt_kecamatan', ['id_kecamatan' => $this->input->post('kecamat', true)])->row_array();
-        $data['desa'] = $this->db->get_where('dt_desa', ['id_desa' => $this->input->post('deselect', true)])->row_array();
-        $data['mingguke'] = $this->input->post('mingguke', true);
-        $data['blnthn'] = $this->input->post('blnthn', true);
-        $data['petak'] = htmlspecialchars($this->input->post('petak', true));
-        $data['koordinat'] = htmlspecialchars($this->input->post('koordinat', true));
-        $data['luas'] = htmlspecialchars($this->input->post('luas', true));
-        //Load Anggota Supervisor per 7 hari
-        $id_users = $data['user']['id_user'];
-        $this->load->model('Report_model', 'report');
-        $data['report'] = $this->report->getMingguan($data);
-
-        $array = [
-            'id_penanaman' => $this->input->post('id_form', true),
-        ];
-
+        // Query Lokasi berdasarkan user login
+        $this->load->model('Report_model', 'det');
+        $data['details'] = $this->det->getDetPengawasanBahan($id_petak, $data['user']['id_user']);
+        // kirim Ke Log 
+        $datetime = date("Y-m-d");
+        $waktu = date("H:i:s");
+        $this->db->insert('dt_logs', [
+            'id_user' => $this->session->userdata('id_user_login'),
+            'logs' => "Akses Detail Pengawasan Bahan : idpetak(" . $id_petak . ")",
+            'id_sub_menu' => 9,
+            'tgl' => $datetime,
+            'waktu' => $waktu
+        ]);
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
-        $this->load->view('input/mingguan-next', $data);
+        $this->load->view('input/view-pengawasandetail', $data);
         $this->load->view('templates/footer');
     }
-    public function persiapan()
+    public function viewdetailpengawasanlap($id_petak)
     {
-        $data['title'] = 'Pengawasan Mingguan';
+        $data['title'] = 'View Pengawasan';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
-
-        $data['id'] = $this->input->post('id_form', true);
-        $data['kabupat'] = $this->db->get_where('dt_kabupaten', ['id_kabupaten' => $this->input->post('kabupat', true)])->row_array();
-        $data['kecamat'] = $this->db->get_where('dt_kecamatan', ['id_kecamatan' => $this->input->post('kecamat', true)])->row_array();
-        $data['desa'] = $this->db->get_where('dt_desa', ['id_desa' => $this->input->post('deselect', true)])->row_array();
-        $data['mingguke'] = $this->input->post('mingguke', true);
-        $data['blnthn'] = $this->input->post('blnthn', true);
-        $data['petak'] = htmlspecialchars($this->input->post('petak', true));
-        $data['koordinat'] = htmlspecialchars($this->input->post('koordinat', true));
-        $data['luas'] = htmlspecialchars($this->input->post('luas', true));
-
-        $array = [
-            'id_penanaman' => $this->input->post('id_form', true),
-        ];
-
+        // Query Lokasi berdasarkan user login
+        $this->load->model('Report_model', 'det');
+        $data['details'] = $this->det->getDetPengawasanLap($id_petak, $data['user']['id_user']);
+        // kirim Ke Log 
+        $datetime = date("Y-m-d");
+        $waktu = date("H:i:s");
+        $this->db->insert('dt_logs', [
+            'id_user' => $this->session->userdata('id_user_login'),
+            'logs' => "Akses Detail Pengawasan Lapangan : idpetak(" . $id_petak . ")",
+            'id_sub_menu' => 9,
+            'tgl' => $datetime,
+            'waktu' => $waktu
+        ]);
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
-        $this->load->view('input/mingguan-next2', $data);
+        $this->load->view('input/view-pengawasandetaillap', $data);
+        $this->load->view('templates/footer');
+    }
+    public function viewdetailpengawasanbibit($id_petak)
+    {
+        $data['title'] = 'View Pengawasan';
+        $data['user'] = $this->db->get_where('dt_user', ['email' =>
+        $this->session->userdata('email')])->row_array();
+        // Query Lokasi berdasarkan user login
+        $this->load->model('Report_model', 'det');
+        $data['details'] = $this->det->getDetPengawasanBibit($id_petak, $data['user']['id_user']);
+        // kirim Ke Log 
+        $datetime = date("Y-m-d");
+        $waktu = date("H:i:s");
+        $this->db->insert('dt_logs', [
+            'id_user' => $this->session->userdata('id_user_login'),
+            'logs' => "Akses Detail Pengawasan Bibit : idpetak(" . $id_petak . ")",
+            'id_sub_menu' => 9,
+            'tgl' => $datetime,
+            'waktu' => $waktu
+        ]);
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('input/view-pengawasandetailbibit', $data);
         $this->load->view('templates/footer');
     }
 }

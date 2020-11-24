@@ -2,42 +2,70 @@
 <div class="container-fluid">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-4 text-gray-800">Report Pengawasan Harian</h1>
-    <div class="table-responsive table-head-fixed" style="font-size: small; font-family: Calibri;">
-        <table class="table table-hover table-sm table-light" id="dataTables">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Desa/Kecamatan</th>
-                    <th scope="col">Kabupaten</th>
-                    <th scope="col">Tgl Pengawasan</th>
-                    <th scope="col">Petugas</th>
-                    <th scope="col">Petak</th>
-                    <th scope="col">Koordinat</th>
-                    <th scope="col">Luas</th>
-                    <th scope="col">#</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $i = 1;
-                foreach ($report as $re) : ?>
-                    <tr>
-                        <th scope="row"><?= $re['id_penanaman']; ?></th>
-                        <td><?= $re['nm_desa'] . "/" . $re['nm_kecamatan']; ?></td>
-                        <td><?= $re['nm_kabupaten']; ?></td>
-                        <td><?= $re['tgl_pengawasan']; ?></td>
-                        <td><?= $re['nm_user']; ?></td>
-                        <td><?= $re['nm_petak']; ?></td>
-                        <td><?= $re['koordinat']; ?></td>
-                        <td><?= $re['luas']; ?></td>
-                        <td>
-                            <a href="<?= base_url('report/detail/') . $re['id_penanaman']; ?>" class="btn btn-info btn-circle btn-sm tooltip-inner" data-toggle="tooltip" data-placement="left" title="Lihat Detail Lengkap"><i class="fas fa-fw fa-info"></i></a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    <h1 class="h3 mb-4 font-weight-bold text-primary"><?= $title; ?></h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive table-head-fixed">
+                <table class="table table-hover table-bordered scrol" id="dataTables">
+                    <thead>
+                        <tr class="text-center text-lg">
+                            <th>No</th>
+                            <th>Lokasi</th>
+                            <th>Blok/Petak</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $no = 1;
+                        foreach ($lokasi as $value) {
+                        ?>
+                            <tr>
+                                <td class="text-center"><?= $no++; ?></td>
+                                <td class="font-weight-bold">Kab. <?= $value['nm_kabupaten'] . " | Kec. " . $value['nm_kecamatan'] . "<br> Desa " . $value['nm_desa']; ?></td>
+                                <td>
+                                    <div class="row scroll">
+                                        <?php
+                                        $diblok = 0;
+                                        $desblok = $this->loask->getBlokHarian($value['id_kabupaten'], $value['id_kecamatan'], $value['id_desa']);
+                                        foreach ($desblok as $blok) {
+                                            $blokpetak = $this->loask->LoadPetak($value['id_kabupaten'], $value['id_kecamatan'], $value['id_desa'], $blok['id_blok']);
+                                        ?>
+                                            <div class="col-sm-6">
+                                                <ul style="list-style-type:circle;" class="pl-4 m-0 mb-1 border-bottom-info">
+                                                    <li class="">
+                                                        <b class="text-info"><?= $blok['nm_blok']; ?></b>
+                                                        <ul style="list-style-type:disc">
+                                                            <div class="row font-weight-bold">
+                                                                <?php
+                                                                foreach ($blokpetak as $petak) {
+                                                                ?>
+                                                                    <div class="col-sm-4">
+                                                                        <a href="<?= base_url('report/harian/') . $blok['id_kabupaten'] . "-" . $blok['id_kecamatan'] . "-" . $blok['id_desa'] . "-" . $blok['id_blok'] . "-" . $petak['id_petak']; ?>" class="" title="Lihat Laporan Harian">
+                                                                            <li>
+                                                                                <?= $petak['nm_petak']; ?>
+                                                                            </li>
+                                                                        </a>
+                                                                    </div>
+                                                                <?php } ?>
+                                                            </div>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        <?php
+                                        }
+                                        ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 </div>

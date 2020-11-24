@@ -23,8 +23,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-// $config['base_url'] = 'http://192.168.22.38/belajar/wpu-login';
-$config['base_url'] = 'http://localhost/belajar/wpu-login';
+// $config['base_url'] = 'http://192.168.22.126/rehabdas';
+// $config['base_url'] = 'http://34.101.107.197/';
+$config['base_url'] = 'http://rehabdas.ptsi.co.id/';
 
 /*
 |--------------------------------------------------------------------------

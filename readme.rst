@@ -35,6 +35,37 @@ It should work on 5.3.7 as well, but we strongly advise you NOT to run
 such old versions of PHP, because of potential security and performance
 issues, as well as missing features.
 
+*******************
+Server Configuration on GCP Compute Engine
+*******************
+- Update Apache.conf in /etc/apache2/apache2.conf -> change Allowoveride None to Allowoveride All in line 172
+- add package php-mysql, if using Cloud SQL as Database Server 
+- if your local development using MariaDB, use Cloud SQL MySQL Version 8.0 as Database Server
+- Update Mod_Rewrite Server to make htaccess running well on GCP Compute Engine with command: sudo a2ensite rewrite
+- Restart Apache Server -> sudo systemctl restart apache2
+
+*******************
+Automation on GCP Compute Engine
+*******************
+Important Note: 
+- Upload apache2.conf configured to Repository, automation will remove after use
+- if your repository are private, try to add git config on hash below 
+
+=====START CODE=====
+
+- sudo apt-get update -y
+- sudo apt-get install apache2 php git php-mysql -y
+- sudo rm -f /var/www/html/index.html
+- #git-config
+- sudo git clone <git link> /var/www/html
+- sudo chmod -R 755 /var/www/html/ 
+- sudo cp /var/www/html/apache2.conf /etc/apache2/
+- sudo rm -f /var/www/html/apache2.conf
+- sudo a2enmod rewrite
+- sudo systemctl restart apache2 
+
+=====END CODE=====
+
 ************
 Installation
 ************

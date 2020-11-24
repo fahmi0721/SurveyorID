@@ -8,6 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <style>
+        .bg {
+            /* background-repeat: no-repeat; */
+            background-attachment: fixed;
+            background-position: top;
+            background-size: 100% 100%;
+            background-image: url(<?= base_url('assets/'); ?>img/bg.jpg)
+        }
+    </style>
 
     <title>
         <?= $title; ?>
@@ -22,4 +31,4 @@
 
 </head>
 
-<body background="<?= base_url('assets/'); ?>img/bg.jpg">
+<body class="bg">

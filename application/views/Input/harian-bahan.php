@@ -23,7 +23,6 @@
                     <div class="card-body">
                         <!-- form  -->
                         <?= form_open_multipart('input/harianbahaninput'); ?>
-                        <!-- <form class="user" method="post" enctype="multipart/form-data" action="<?= base_url('input/harianbahaninput'); ?>"> -->
                         <div class="form-group row ">
                             <div class="col-sm-6">
                                 <div class="form-row align-items-center">
@@ -32,8 +31,8 @@
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text col-form-label-sm font-weight-bold">User ID </div>
                                             </div>
-                                            <input type="text" class="form-control col-md-2" id="id_user" name="id_user" value="<?= $user['id_user']; ?>" required title="User ID" readonly>
-                                            <input type="text" class="form-control" id="" name="" value="<?= $user['nm_user']; ?>" required title="User ID" readonly>
+                                            <input type="text" class="form-control col-md-2" id="id_user" name="id_user" value="<?= $user['id_user']; ?>" required data-toggle="tooltip" data-placement="left" title="User ID" readonly>
+                                            <input type="text" class="form-control" id="" name="" value="<?= $user['nm_user']; ?>" required data-toggle="tooltip" data-placement="left" title="User ID" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -43,7 +42,7 @@
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">Petugas Lapangan</div>
                                             </div>
-                                            <input type="text" class="form-control" id="petugas" name="petugas" placeholder="Nama" required title="Nama  Petugas Lapangan">
+                                            <input type="text" class="form-control" id="petugas" name="petugas" placeholder="Nama" required data-toggle="tooltip" data-placement="left" title="Nama  Petugas Lapangan">
                                         </div>
                                     </div>
                                 </div>
@@ -53,7 +52,7 @@
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">Kabupaten</div>
                                             </div>
-                                            <select name="kabupat" id="kabupat" class="form-control col-md-12" required title="Pilih Kabupaten">
+                                            <select name="kabupat" id="kabupat" class="form-control col-md-12" required data-toggle="tooltip" data-placement="left" title="Pilih Kabupaten">
                                                 <option value="">Pilih Kabupaten</option>
                                                 <?php foreach ($kabupaten as $ka) : ?>
                                                     <option value="<?= $ka['id_kabupaten']; ?>"><b><?= $ka['nm_kabupaten']; ?></b></option>
@@ -68,7 +67,7 @@
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">Kecamatan</div>
                                             </div>
-                                            <select name="kecamat" id="kecamat" class="form-control" required title="Pilih Kecamatan">
+                                            <select name="kecamat" id="kecamat" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Kecamatan">
                                                 <option value=''>Pilih Kabupaten Terlebih Dahulu</option>
                                             </select>
                                         </div>
@@ -80,7 +79,7 @@
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">Desa</div>
                                             </div>
-                                            <select name="deselect" id="deselect" class="form-control" required title="Pilih Desa">
+                                            <select name="deselect" id="deselect" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Desa">
                                                 <option value=''>Pilih Kecamatan Terlebih Dahulu</option>
                                             </select>
                                         </div>
@@ -92,7 +91,7 @@
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">Blok</div>
                                             </div>
-                                            <select name="blok" id="blok" class="form-control" required title="Pilih Blok">
+                                            <select name="blok" id="blok" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Blok">
                                                 <option value=''>Pilih Desa Terlebih Dahulu</option>
                                             </select>
                                         </div>
@@ -104,7 +103,7 @@
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">Petak</div>
                                             </div>
-                                            <select name="petak" id="petak" onchange="getKegiatan()" class="form-control" required title="Pilih Petak">
+                                            <select name="petak" id="petak" onchange="getKegiatan()" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Petak">
                                                 <option value=''>Pilih Blok Terlebih Dahulu</option>
                                             </select>
                                         </div>
@@ -116,9 +115,9 @@
                                     <div class="col-sm-12 mb-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Bahan</div>
+                                                <div class="input-group-text font-weight-bold">Kegiatan Pengawasan</div>
                                             </div>
-                                            <select name="kegbahan" id="kegbahan" class="form-control" required title="Pilih Petak">
+                                            <select name="kegbahan" onchange="getSatuan()" id="kegbahan" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Petak">
                                                 <option value=''>Pilih Petak Terlebih Dahulu</option>
                                             </select>
                                         </div>
@@ -128,22 +127,25 @@
                                     <div class="col-sm-12 mb-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Volume</div>
+                                                <div class="input-group-text font-weight-bold">Nilai Volume</div>
                                             </div>
-                                            <input type="text" class="form-control" id="volume" name="volume" placeholder="0" required title="Nilai Volume Kegiatan Pengawasan">
+                                            <input type="text" class="form-control" id="volume" name="volume" placeholder="0" required data-toggle="tooltip" data-placement="left" title="Nilai Volume Kegiatan Pengawasan">
+                                            <div class="input-group-prepend" id="satuan">
+                                                <div class="input-group-text font-weight-bold" id="isisatuan"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group mb-1">
-                                    <input type="text" class="form-control" id="koordinat" name="koordinat" placeholder="koordinat" required title="koordinat">
+                                    <input type="text" class="form-control" id="koordinat" name="koordinat" placeholder="koordinat" data-toggle="tooltip" data-placement="left" title="Koordinat">
                                 </div>
                                 <div class="form-group mb-1">
-                                    <textarea name="ket" id="ket" class="form-control" title="Keterangan" placeholder="Keterangan"></textarea>
+                                    <textarea name="ket" id="ket" class="form-control" data-toggle="tooltip" data-placement="left" title="Keterangan" placeholder="Keterangan"></textarea>
                                 </div>
                                 <div class="form-row align-items-center">
                                     <div class="col-sm-12 mb-1">
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="luas" name="luas" placeholder="luas" required title="luas">
+                                            <input type="number" class="form-control" id="luas" name="luas" placeholder="luas" data-toggle="tooltip" data-placement="left" title="Luas Pengawasan">
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">&nbsp; Ha</div>
                                             </div>
@@ -159,7 +161,7 @@
                                             <?php
                                             $today = date('Y-m-d');
                                             ?>
-                                            <input type="date" max="<?= $today; ?>" class="form-control" id="tgl_pengawasan" name="tgl_pengawasan" title="Tanggal pelaksanaan pengawasan" required>
+                                            <input type="date" max="<?= $today; ?>" class="form-control" id="tgl_pengawasan" name="tgl_pengawasan" data-toggle="tooltip" data-placement="left" title="Tanggal pelaksanaan pengawasan" required>
                                         </div>
                                     </div>
                                 </div>
@@ -171,9 +173,9 @@
                             <div class="form-group row">
                                 <label for="video" class="col-sm-2 col-form-label">File Foto</label>
                                 <div class="col-sm-10">
-                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto" name="foto" required>
+                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto" name="foto" required data-toggle="tooltip" data-placement="left" title="Bukti foto pengawasan">
                                     <label for="foto" class="custom-file-label form-control-sm">Choose File</label>
-                                    <small class="text-danger ml-0">*ekstensi file .jpeg/.jpg/.png/.gif | max size 1Mb</small>
+                                    <small class="text-danger ml-0">*ekstensi file .jpeg/.jpg/.png/.gif | maksimal ukuran 1Mb</small>
                                 </div>
                             </div>
                         </div>
@@ -194,6 +196,31 @@
 </div>
 <!-- End of Main Content -->
 <script>
+    $("#satuan").hide();
+
+    function getSatuan() {
+        var KegLap = $("#kegbahan").val();
+        $.ajax({
+            url: "<?= base_url('input/BahanSatuanAjax'); ?>",
+            method: "POST",
+            data: {
+                id: KegLap
+            },
+            async: true,
+            dataType: 'json',
+            success: function(data) {
+                console.log(data);
+                var html = data['satuan'] + "&nbsp;";
+                $("#satuan").show();
+                $('#isisatuan').html(html);
+            },
+            error: function(er) {
+                console.log(er);
+                $("#er").html(er['responseText']);
+            }
+        });
+    }
+
     $(document).ready(function() {
 
     });
@@ -222,7 +249,5 @@
                 $("#er").html(er['responseText']);
             }
         });
-
-
     }
 </script>

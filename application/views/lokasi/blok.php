@@ -29,7 +29,7 @@
                                     <td class="text-center"><?= $no++; ?></td>
                                     <td><?= $desa['nm_desa']; ?></td>
                                     <td>
-                                        <ul style="list-style-type:square">
+                                        <ul style="list-style-type:square" class="m-0 mb-1 scrolllokasi">
                                             <?php
                                             $qblok = $this->db->get_where('tb_blok', ['id_desa' => $desa['id_desa']])->result_array();
                                             foreach ($qblok as $blok) {
@@ -145,6 +145,9 @@
                                                                 <tr <?= ($petak['flag_petak'] == 0) ? "class='text-success'" : "class='text-danger'"; ?> title="<?= $petak['ket_petak']; ?>">
                                                                     <td>
                                                                         <li><?= $petak['nm_petak']; ?></li>
+                                                                    </td>
+                                                                    <td>
+                                                                        <li title="Luas (Ha)"><?= $petak['luas_petak']; ?> Ha</li>
                                                                     </td>
                                                                     <td class="text-right">
                                                                         <a href="<?= base_url('lokasi/petakDel/') . $petak['id_petak']; ?>" class="badge mr-4" onclick="return confirm('Are you sure delete this Petak?')" title="Hapus <?= $petak['nm_petak']; ?>?">Delete</a>

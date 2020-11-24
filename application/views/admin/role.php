@@ -24,7 +24,7 @@
                             <th scope="row"><?= $i++; ?></th>
                             <td><?= $r['role']; ?></td>
                             <td>
-                                <a href="<?= base_url('admin/roleaccess/') . $r['id']; ?>" class="badge badge-warning">Access</a>
+                                <a href="<?= base_url('admin/roleAccess/') . $r['id']; ?>" class="badge badge-warning">Access</a>
                                 <a href="" class="badge badge-info" data-toggle="modal" data-target="#editModal<?= $r['id']; ?>">Edit</a>
                                 <a href="" class="badge badge-danger" data-toggle="modal" data-target="#delRole<?= $r['id']; ?>">Delete</a>
                             </td>

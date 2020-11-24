@@ -94,7 +94,7 @@
             var confir = confirm("Are you sure want to change this access?");
 		if (confir == true) {
             $.ajax({
-                url: "<?= base_url('admin/changeaccess'); ?>",
+                url: "<?= base_url('admin/changeAccess'); ?>",
                 type: 'post',
                 data: {
                     menuId: menuId,
@@ -226,7 +226,7 @@
     // validasi ukuran input file Video maksimal 20 MB 
     function ValidateVid(video) {
         var pathFile = video.value;
-        var ekstensiOk = /(\.mp4|\.3gp|\.flv)$/i; //tipe file
+        var ekstensiOk = /(\.mp4|\.3gp|\.flv|\.ts)$/i; //tipe file
         var FileSize = video.files[0].size / 5480 / 5480; // in MB
         if (FileSize > 1) {
             alert('Ukuran File Melebihi 20 MB');
