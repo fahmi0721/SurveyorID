@@ -214,8 +214,8 @@
         var pathFile = file.value;
         var ekstensiOk = /(\.jpg|\.jpeg|\.png|\.gif|\.JPG|\.JPEG|\.PNG|\.GIF)$/i; //tipe file
         var FileSize = file.files[0].size / 1024 / 1024; // in MB
-        if (FileSize > 1) {
-            alert('Ukuran File Melebihi 1 MB');
+        if (FileSize > 5) {
+            alert('Ukuran File Melebihi 5 MB');
             $(file).val(''); //for clearing with Jquery
         }else if(!ekstensiOk.exec(pathFile)) {
             alert('Ekstensi file tidak mendukung. Silakan upload file yang memiliki ekstensi .jpeg/.jpg/.png/.gif');
@@ -227,9 +227,9 @@
     function ValidateVid(video) {
         var pathFile = video.value;
         var ekstensiOk = /(\.mp4|\.3gp|\.flv|\.ts)$/i; //tipe file
-        var FileSize = video.files[0].size / 5480 / 5480; // in MB
-        if (FileSize > 1) {
-            alert('Ukuran File Melebihi 20 MB');
+        var FileSize = video.files[0].size / 1024 / 1024; // in MB
+        if (FileSize > 25) {
+            alert('Ukuran File Melebihi 25 MB');
             $(video).val(''); //for clearing with Jquery
         }else if(!ekstensiOk.exec(pathFile)) {
             alert('Ekstensi file tidak mendukung. Silakan upload file yang memiliki Tipe file mp4/3gp/flv');

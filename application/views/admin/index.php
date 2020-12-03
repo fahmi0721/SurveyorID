@@ -35,7 +35,22 @@
             <div class="card border-left-info shadow h-200 ml-0">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-1">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Pengawasan Harian</div>
+                                    <div class="h5 mb-0 font-weight-bold text-capitalize text-success">
+                                        Bibit (Tahap I) : <?= $totbibitpertama; ?> Kabupaten
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="<?= base_url('report'); ?>" title="Lihat detail semua data report pengawasan harian">
+                                        <i class="fas fa-file-invoice fa-3x text-success"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 border-left-primary">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-1">
                                     <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Pengawasan Harian</div>
@@ -50,12 +65,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 border-left-info">
+                        <div class="col-sm-3 border-left-info">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-1">
                                     <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Pengawasan Harian</div>
                                     <div class="h5 mb-0 font-weight-bold text-capitalize text-success">
-                                        Bahan : <?= $totbibit; ?> Petak
+                                        Bibit : <?= $totbibit; ?> Petak
                                     </div>
                                 </div>
                                 <div class="col-auto">
@@ -65,12 +80,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 border-left-info">
+                        <div class="col-sm-3 border-left-info">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-1">
                                     <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pengawasan Harian</div>
                                     <div class="h5 mb-0 font-weight-bold text-capitalize text-warning">
-                                        Bahan : <?= $totlapangan; ?> Petak
+                                        Lapangan : <?= $totlapangan; ?> Petak
                                     </div>
                                 </div>
                                 <div class="col-auto">
@@ -127,6 +142,7 @@
                 </div>
             </div>
         </div>
+        <?php include 'grafikpengawasantallysheet.php'; ?>
         <?php include 'grafikpengawasan.php'; ?>
 
     </div>

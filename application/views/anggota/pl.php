@@ -11,12 +11,12 @@
         </div>
     </div>
     <div class="card shadow mb-4">
-        <div class="card-header">
-            Daftar Pengawasan Lapangan <b> <?= $pl['nm_user']; ?></b>
+        <div class="card-header text-info font-weight-bold">
+            Daftar Pengawasan Harian <b> <?= $pl['nm_user']; ?></b>
         </div>
         <div class="card-body">
             <div class="table-responsive table-head-fixed">
-                <table class="table table-hover table-bordered scrol" id="dataTables">
+                <table class="table table-sm table-hover scrol" id="dataTables">
                     <thead>
                         <tr class="text-center text-lg">
                             <th>No</th>
@@ -73,6 +73,38 @@
                         ?>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    <!-- Tally Sheet -->
+    <div class="card shadow mb-4">
+        <div class="card-header text-info font-weight-bold">
+            Daftar Pengawasan Harian Tally Sheet Bibit (Tahap I) <b> <?= $pl['nm_user']; ?></b>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <?php
+                foreach ($lokasits as $value) { ?>
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-200 ml-0">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-1">
+                                        <div class="text-lg font-weight-bold text-primary text-uppercase mb-1">Kabupaten</div>
+                                        <div class="h1 mb-0 font-weight-bold text-capitalize text-gray-800"><?= $value['nm_kabupaten'] ?></div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-map-marker-alt fa-3x  text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="text card-footer btn-icon-split btn-sm text-lg" href="<?= base_url('anggota/pengawasants/') . $value['id_kabupaten'] . "-" . $pl['id_user']; ?>" title="Lihat Detail Pengawasan ">
+                                <span class="text font-weight-bold"> Lihat Data</span>
+                            </a>
+                        </div>
+                    </div>
+                <?php
+                } ?>
             </div>
         </div>
     </div>

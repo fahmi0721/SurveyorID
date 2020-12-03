@@ -23,8 +23,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-// $config['base_url'] = 'http://192.168.22.126/rehabdas';
-// $config['base_url'] = 'http://34.101.107.197/';
+// $config['base_url'] = 'http://192.168.22.190/projek/surveyorID-survei-v1.4';
+// $config['base_url'] = 'http://localhost/projek/surveyorID-survei-v1.4/';
 $config['base_url'] = 'http://rehabdas.ptsi.co.id/';
 
 /*

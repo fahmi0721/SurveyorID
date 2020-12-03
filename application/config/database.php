@@ -75,9 +75,12 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '34.101.171.62',
-	'username' => 'surveiid',
-	'password' => 'survei12341234',
+	// 'hostname' => '34.101.171.62',
+	'hostname' => 'localhost',
+	// 'username' => 'surveiid',
+	'username' => 'root',
+	'password' => '',
+	// 'password' => 'survei12341234',
 	'database' => 'bpdas',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

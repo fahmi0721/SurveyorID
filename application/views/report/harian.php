@@ -1,4 +1,12 @@
 <!-- Begin Page Content -->
+<?php
+if (empty($urlx)) {
+    redirect('report');
+}
+$aprvBibit = "bibit";
+$aprvBahan = "bahan";
+$aprvLapangan = "lapangan";
+?>
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="row">
@@ -33,7 +41,7 @@
         </div>
     </div>
     <hr>
-
+    <?= $this->session->flashdata('message'); ?>
     <?php
     if (!empty(isset($_GET['tgl']))) {
         $tgl = $_GET['tgl'];
@@ -54,7 +62,7 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-12 text-center mb-2 font-weight-bold">
-                            <h5 class="font-weight-bold">RHASIL PENGAWASAN DAN PENILAIAN HARIAN</h5>
+                            <h5 class="font-weight-bold">HASIL PENGAWASAN DAN PENILAIAN HARIAN</h5>
                             <h5 class="font-weight-bold">PEMBUATAN TANAMAN (P0) REHABILITASI DAS PT VALE INDONESIA,TBK</h5>
                         </div>
                         <div class="col-lg-12 text-uppercase font-weight-bold mb-3 ml-3">
@@ -173,8 +181,10 @@
                                                                                 <th>Luas</th>
                                                                                 <th>Keterangan</th>
                                                                                 <th>Foto</th>
+                                                                                <th>Approvals</th>
                                                                             </tr>
                                                                             <?php
+                                                                            error_reporting(0);
                                                                             $ni = 1;
                                                                             $sql = $this->db->get_where('harianbahan', ['id_spkbahan' => $value['id_spkbahan'], 'id_petak' => $value['id_petak'], 'tgl' => $tgl])->result_array();
                                                                             foreach ($sql as $val) { ?>
@@ -188,11 +198,11 @@
                                                                                     <td><?= $val['luas']; ?></td>
                                                                                     <td class="text-left"><?= $val['keterangan']; ?></td>
                                                                                     <td>
-                                                                                        <center>
+                                                                                        <center data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
                                                                                             <?php
-                                                                                            if (file_exists("assets/img/peng-bahan/" . $val['foto'])) { ?>
-                                                                                                <button type="button" class="btn btn-info p-0" data-toggle="modal" data-target="#fotoViewBahan<?= $val['id_harianbahan'] ?>">
-                                                                                                    <img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto']; ?>" alt="" width="60px" height="60px" style="cursor:zoom-in" data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
+                                                                                            if (file_exists("assets/img/peng-bahan/" . $val['foto']) || file_exists("assets/img/peng-bahan/" . $val['foto_2']) || file_exists("assets/img/peng-bahan/" . $val['foto_3']) || file_exists("assets/img/peng-bahan/" . $val['foto_4']) || file_exists("assets/img/peng-bahan/" . $val['foto_5'])) { ?>
+                                                                                                <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoViewBahan<?= $val['id_harianbahan'] ?>" style="cursor:zoom-in">
+                                                                                                    <i class="fas fa-seedling fa-fa-3x"></i>
                                                                                                 </button>
                                                                                             <?php
                                                                                             } else { ?>
@@ -203,28 +213,127 @@
                                                                                             }
                                                                                             ?>
                                                                                         </center>
-                                                                                        <!-- Modal Foto View -->
-                                                                                        <div class="modal fade" id="fotoViewBahanTgl<?= $val['id_harianbahan'] ?>" tabindex="-1" aria-labelledby="fotoViewBahanTgl<?= $val['id_harianbahan'] ?>Label" aria-hidden="true">
+                                                                                        <div class="modal fade" id="fotoViewBahan<?= $val['id_harianbahan'] ?>" tabindex="-1" aria-labelledby="fotoViewBahan<?= $val['id_harianbahan'] ?>Label" aria-hidden="true">
                                                                                             <div class="modal-dialog modal-xl" style="width: 100%;">
                                                                                                 <div class="modal-content">
                                                                                                     <div class="modal-body modal-open text-center m-0 p-0" style="background-color: transparent;">
-                                                                                                        <img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>">
                                                                                                         <?php
-                                                                                                        $BahanimageURL = "assets/img/peng-bahan/" . $val['foto'];
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto']);
                                                                                                         $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                         ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                         <h3 class="badge-dark badge-lg m-0"><?= $val['foto']; ?></h3>
                                                                                                         <?php
                                                                                                         if (!empty($BahanUrlMap)) {
                                                                                                         ?>
                                                                                                             <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
-                                                                                                                <button class="btn btn-info btn-outline-primary pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i></button>
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
+                                                                                                        <?php
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_2']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto_2']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_2']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
+                                                                                                        <?php
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_3']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto_3']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_3']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
+                                                                                                        <?php
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_4']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto_4']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_4']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
+                                                                                                        <?php
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_5']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto_5']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_5']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
                                                                                                             </a>
                                                                                                         <?php } ?>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
+                                                                                        <!-- END Modal Foto View -->
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        <?php
+                                                                                        $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
+                                                                                        if ($val['status'] == 1) {
+                                                                                        ?>
+                                                                                            <div class="btn btn-success btn-icon-split">
+                                                                                                <span class="icon text-white-50">
+                                                                                                    <i class="fas fa-check"></i>
+                                                                                                </span>
+                                                                                                <span class="text"> Approved</span>
+                                                                                            </div>
+                                                                                        <?php
+                                                                                        } else if ($val['status'] == 2) {
+                                                                                        ?>
+                                                                                            <div class="btn btn-warning btn-icon-split">
+                                                                                                <span class="icon text-white-50">
+                                                                                                    &times;
+                                                                                                </span>
+                                                                                                <span class="text"> Rejected</span>
+                                                                                            </div>
+                                                                                        <?php
+                                                                                        } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                        ?>
+                                                                                            <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvBahan . "/" . $val['id_harianbahan'] . "/" . $urlx; ?>">
+                                                                                                Approve
+                                                                                            </a>
+                                                                                            <hr class="m-1">
+                                                                                            <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvBahan . "/" . $val['id_harianbahan'] . "/"  . $urlx; ?>">
+                                                                                                Reject
+                                                                                            </a>
+                                                                                        <?php
+                                                                                        } else {
+                                                                                        ?>
+                                                                                            <div class="btn btn-danger btn-icon-split" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
+                                                                                                <span class="icon text-white-50">
+                                                                                                    <i class="fas fa-sync"></i>
+                                                                                                </span>
+                                                                                                <span class="text"> Proses</span>
+                                                                                            </div>
+                                                                                        <?php
+                                                                                        }
+                                                                                        ?>
                                                                                     </td>
                                                                                 </tr>
                                                                             <?php }
@@ -304,8 +413,10 @@
                                                                                     <th>Luas</th>
                                                                                     <th>Keterangan</th>
                                                                                     <th>Foto</th>
+                                                                                    <th>Approvals</th>
                                                                                 </tr>
                                                                                 <?php
+                                                                                error_reporting(0);
                                                                                 $ni = 1;
                                                                                 foreach ($harianbibit as $val) { ?>
                                                                                     <tr>
@@ -318,43 +429,142 @@
                                                                                         <td><?= $val['luas']; ?></td>
                                                                                         <td class="text-left"><?= $val['keterangan']; ?></td>
                                                                                         <td>
-                                                                                            <center>
+                                                                                            <center data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
                                                                                                 <?php
-                                                                                                if (file_exists(base_url('assets/') . "img/peng-bibit/" . $val['foto'])) { ?>
-                                                                                                    <button type="button" class="btn btn-info p-0" data-toggle="modal" data-target="#fotoViewBibitTgl<?= $val['id_harianbibit'] ?>">
-                                                                                                        <img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto']; ?>" alt="" width="60px" height="60px" title="<?= $val['foto']; ?>">
+                                                                                                if (file_exists("assets/img/peng-bibit/" . $val['foto']) || file_exists("assets/img/peng-bibit/" . $val['foto_2']) || file_exists("assets/img/peng-bibit/" . $val['foto_3']) || file_exists("assets/img/peng-bibit/" . $val['foto_4']) || file_exists("assets/img/peng-bibit/" . $val['foto_5'])) { ?>
+                                                                                                    <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoViewBibit<?= $val['id_harianbibit'] ?>" style="cursor:zoom-in">
+                                                                                                        <i class="fas fa-seedling fa-fa-3x"></i>
                                                                                                     </button>
                                                                                                 <?php
                                                                                                 } else { ?>
-                                                                                                    <button type="button" class="btn btn-info">
+                                                                                                    <button type="button" class="btn btn-info text-sm">
                                                                                                         Image not <br> found..
                                                                                                     </button>
                                                                                                 <?php
                                                                                                 }
                                                                                                 ?>
                                                                                             </center>
-                                                                                            <!-- Modal Foto View -->
-                                                                                            <div class="modal fade" id="fotoViewBibitTgl<?= $val['id_harianbibit'] ?>" tabindex="-1" aria-labelledby="fotoViewBibitTgl<?= $val['id_harianbibit'] ?>Label" aria-hidden="true">
+                                                                                            <div class="modal fade" id="fotoViewBibit<?= $val['id_harianbibit'] ?>" tabindex="-1" aria-labelledby="fotoViewBibit<?= $val['id_harianbibit'] ?>Label" aria-hidden="true">
                                                                                                 <div class="modal-dialog modal-xl" style="width: 100%;">
-                                                                                                    <div class="modal-content" style="background-color: transparent;">
-                                                                                                        <div class="modal-body modal-open text-center m-0 p-0">
-                                                                                                            <img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>">
+                                                                                                    <div class="modal-content">
+                                                                                                        <div class="modal-body modal-open text-center m-0 p-0" style="background-color: transparent;">
                                                                                                             <?php
-                                                                                                            $BibitimageURL = "assets/img/peng-bibit/" . $val['foto'];
-                                                                                                            $BibitUrlMap = get_image_location($BibitimageURL);
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                             ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                             <h3 class="badge-dark badge-lg m-0"><?= $val['foto']; ?></h3>
                                                                                                             <?php
-                                                                                                            if (!empty($BibitUrlMap)) {
+                                                                                                            if (!empty($BahanUrlMap)) {
                                                                                                             ?>
-                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BibitUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
-                                                                                                                    <button class="btn btn-info btn-outline-primary pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i></button>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_2']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto_2']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_2']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_3']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto_3']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_3']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_4']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto_4']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_4']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_5']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto_5']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_5']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
                                                                                                                 </a>
                                                                                                             <?php } ?>
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
+                                                                                            <!-- END Modal Foto View -->
+                                                                                        </td>
+                                                                                        <td class="text-center">
+                                                                                            <?php
+                                                                                            $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
+                                                                                            if ($val['status'] == 1) {
+                                                                                            ?>
+                                                                                                <div class="btn btn-success btn-icon-split">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        <i class="fas fa-check"></i>
+                                                                                                    </span>
+                                                                                                    <span class="text"> Approved</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            } else if ($val['status'] == 2) {
+                                                                                            ?>
+                                                                                                <div class="btn btn-warning btn-icon-split">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        &times;
+                                                                                                    </span>
+                                                                                                    <span class="text"> Rejected</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                            ?>
+                                                                                                <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvBibit . "/" . $val['id_harianbibit'] . "/" . $urlx; ?>">
+                                                                                                    Approve
+                                                                                                </a>
+                                                                                                <hr class="m-1">
+                                                                                                <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvBibit . "/" . $val['id_harianbibit'] . "/"  . $urlx; ?>">
+                                                                                                    Reject
+                                                                                                </a>
+                                                                                            <?php
+                                                                                            } else {
+                                                                                            ?>
+                                                                                                <div class="btn btn-danger btn-icon-split" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        <i class="fas fa-sync"></i>
+                                                                                                    </span>
+                                                                                                    <span class="text"> Proses</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            }
+                                                                                            ?>
                                                                                         </td>
                                                                                     </tr>
                                                                                 <?php }
@@ -422,8 +632,10 @@
                                                                                 <th>Keterangan</th>
                                                                                 <th>Foto</th>
                                                                                 <th>Video</th>
+                                                                                <th>Approvals</th>
                                                                             </tr>
                                                                             <?php
+                                                                            error_reporting(0);
                                                                             $nih = 1;
                                                                             foreach ($harianlapangan as $val) { ?>
                                                                                 <tr>
@@ -436,34 +648,99 @@
                                                                                     <td><?= $val['luas']; ?></td>
                                                                                     <td class="text-left"><?= $val['keterangan']; ?></td>
                                                                                     <td>
-                                                                                        <center>
-                                                                                            <button type="button" class="btn btn-info p-0" data-toggle="modal" data-target="#fotoViewLapanganTgl<?= $val['id_harianlapangan'] ?>">
-                                                                                                <img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto']; ?>" alt="" width="60px" height="60px" title="<?= $val['foto']; ?>">
-                                                                                            </button>
+                                                                                        <center data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
+                                                                                            <?php
+                                                                                            if (file_exists("assets/img/peng-lapangan/" . $val['foto']) || file_exists("assets/img/peng-lapangan/" . $val['foto_2']) || file_exists("assets/img/peng-lapangan/" . $val['foto_3']) || file_exists("assets/img/peng-lapangan/" . $val['foto_4']) || file_exists("assets/img/peng-lapangan/" . $val['foto_5'])) { ?>
+                                                                                                <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoViewLapangan<?= $val['id_harianlapangan'] ?>" style="cursor:zoom-in">
+                                                                                                    <i class="fas fa-seedling fa-fa-3x"></i>
+                                                                                                </button>
+                                                                                            <?php
+                                                                                            } else { ?>
+                                                                                                <button type="button" class="btn btn-info text-sm">
+                                                                                                    Image not <br> found..
+                                                                                                </button>
+                                                                                            <?php
+                                                                                            }
+                                                                                            ?>
                                                                                         </center>
-                                                                                        <!-- Modal Foto View -->
-                                                                                        <div class="modal" id="fotoViewLapanganTgl<?= $val['id_harianlapangan'] ?>" tabindex="-1" aria-labelledby="fotoViewLapanganTgl<?= $val['id_harianlapangan'] ?>Label" aria-hidden="true">
+                                                                                        <div class="modal fade" id="fotoViewLapangan<?= $val['id_harianlapangan'] ?>" tabindex="-1" aria-labelledby="fotoViewLapangan<?= $val['id_harianlapangan'] ?>Label" aria-hidden="true">
                                                                                             <div class="modal-dialog modal-xl" style="width: 100%;">
-                                                                                                <div class="modal-content" style="background-color: transparent;">
-                                                                                                    <div class="modal-body modal-open text-center m-0 p-0">
-                                                                                                        <img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"><br>
+                                                                                                <div class="modal-content">
+                                                                                                    <div class="modal-body modal-open text-center m-0 p-0" style="background-color: transparent;">
                                                                                                         <?php
-                                                                                                        $LapimageURL = "assets/img/peng-lapangan/" . $val['foto'];
-                                                                                                        $LapUrlMap = get_image_location($LapimageURL);
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                         ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                         <h3 class="badge-dark badge-lg m-0"><?= $val['foto']; ?></h3>
                                                                                                         <?php
-                                                                                                        if (!empty($LapUrlMap)) {
+                                                                                                        if (!empty($BahanUrlMap)) {
                                                                                                         ?>
-                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $LapUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
-                                                                                                                <button class="btn btn-info btn-outline-primary pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i></button>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
                                                                                                             </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
                                                                                                         <?php
-                                                                                                        } ?>
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_2']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto_2']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_2']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
+                                                                                                        <?php
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_3']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto_3']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_3']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
+                                                                                                        <?php
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_4']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto_4']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_4']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
+                                                                                                        <hr>
+                                                                                                        <?php
+                                                                                                        $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_5']);
+                                                                                                        $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                        ?>
+                                                                                                        <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto_5']; ?>"></a>
+                                                                                                        <h3 class="badge-dark badge-lg m-0"><?= $val['foto_5']; ?></h3>
+                                                                                                        <?php
+                                                                                                        if (!empty($BahanUrlMap)) {
+                                                                                                        ?>
+                                                                                                            <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                            </a>
+                                                                                                        <?php } ?>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
+                                                                                        <!-- END Modal Foto View -->
                                                                                     </td>
                                                                                     <td class="text-center">
                                                                                         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#videoView<?= $val['id_harianlapangan'] ?>">
@@ -481,6 +758,49 @@
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        <?php
+                                                                                        $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
+                                                                                        if ($val['status'] == 1) {
+                                                                                        ?>
+                                                                                            <div class="btn btn-success btn-icon-split">
+                                                                                                <span class="icon text-white-50">
+                                                                                                    <i class="fas fa-check"></i>
+                                                                                                </span>
+                                                                                                <span class="text"> Approved</span>
+                                                                                            </div>
+                                                                                        <?php
+                                                                                        } else if ($val['status'] == 2) {
+                                                                                        ?>
+                                                                                            <div class="btn btn-warning btn-icon-split">
+                                                                                                <span class="icon text-white-50">
+                                                                                                    &times;
+                                                                                                </span>
+                                                                                                <span class="text"> Rejected</span>
+                                                                                            </div>
+                                                                                        <?php
+                                                                                        } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                        ?>
+                                                                                            <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvLapangan . "/" . $val['id_harianlapangan'] . "/" . $urlx; ?>">
+                                                                                                Approve
+                                                                                            </a>
+                                                                                            <hr class="m-1">
+                                                                                            <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvLapangan . "/" . $val['id_harianlapangan'] . "/"  . $urlx; ?>">
+                                                                                                Reject
+                                                                                            </a>
+                                                                                        <?php
+                                                                                        } else {
+                                                                                        ?>
+                                                                                            <div class="btn btn-danger btn-icon-split" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
+                                                                                                <span class="icon text-white-50">
+                                                                                                    <i class="fas fa-sync"></i>
+                                                                                                </span>
+                                                                                                <span class="text"> Proses</span>
+                                                                                            </div>
+                                                                                        <?php
+                                                                                        }
+                                                                                        ?>
                                                                                     </td>
                                                                                 </tr>
                                                                             <?php }
@@ -533,7 +853,7 @@
                         </div>
                         <div class="row">
                             <div class="col-lg-12 text-center mb-2 font-weight-bold">
-                                <h5 class="font-weight-bold">RHASIL PENGAWASAN DAN PENILAIAN HARIAN</h5>
+                                <h5 class="font-weight-bold">HASIL PENGAWASAN DAN PENILAIAN HARIAN</h5>
                                 <h5 class="font-weight-bold">PEMBUATAN TANAMAN (P0) REHABILITASI DAS PT VALE INDONESIA,TBK</h5>
                             </div>
                             <div class="col-lg-12 text-uppercase font-weight-bold mb-3 ml-3">
@@ -648,8 +968,10 @@
                                                                                     <th>Luas</th>
                                                                                     <th>Keterangan</th>
                                                                                     <th>Foto</th>
+                                                                                    <th>Approvals</th>
                                                                                 </tr>
                                                                                 <?php
+                                                                                error_reporting(0);
                                                                                 $ni = 1;
                                                                                 $sql = $this->db->get_where('harianbahan', ['id_spkbahan' => $value['id_spkbahan'], 'id_petak' => $value['id_petak']])->result_array();
                                                                                 foreach ($sql as $val) {
@@ -666,11 +988,11 @@
                                                                                         <td><?= $val['luas']; ?></td>
                                                                                         <td class="text-left"><?= $val['keterangan']; ?></td>
                                                                                         <td>
-                                                                                            <center>
+                                                                                            <center data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
                                                                                                 <?php
-                                                                                                if (file_exists("assets/img/peng-bahan/" . $val['foto'])) { ?>
-                                                                                                    <button type="button" class="btn btn-info p-0" data-toggle="modal" data-target="#fotoViewBahan<?= $val['id_harianbahan'] ?>">
-                                                                                                        <img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto']; ?>" alt="" width="60px" height="60px" style="cursor:zoom-in" data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
+                                                                                                if (file_exists("assets/img/peng-bahan/" . $val['foto']) || file_exists("assets/img/peng-bahan/" . $val['foto_2']) || file_exists("assets/img/peng-bahan/" . $val['foto_3']) || file_exists("assets/img/peng-bahan/" . $val['foto_4']) || file_exists("assets/img/peng-bahan/" . $val['foto_5'])) { ?>
+                                                                                                    <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoViewBahan<?= $val['id_harianbahan'] ?>" style="cursor:zoom-in">
+                                                                                                        <i class="fas fa-seedling fa-fa-3x"></i>
                                                                                                     </button>
                                                                                                 <?php
                                                                                                 } else { ?>
@@ -681,28 +1003,127 @@
                                                                                                 }
                                                                                                 ?>
                                                                                             </center>
-                                                                                            <!-- Modal Foto View -->
                                                                                             <div class="modal fade" id="fotoViewBahan<?= $val['id_harianbahan'] ?>" tabindex="-1" aria-labelledby="fotoViewBahan<?= $val['id_harianbahan'] ?>Label" aria-hidden="true">
                                                                                                 <div class="modal-dialog modal-xl" style="width: 100%;">
                                                                                                     <div class="modal-content">
                                                                                                         <div class="modal-body modal-open text-center m-0 p-0" style="background-color: transparent;">
-                                                                                                            <img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>">
                                                                                                             <?php
-                                                                                                            $BahanimageURL = "assets/img/peng-bahan/" . $val['foto'];
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto']);
                                                                                                             $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                             ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                             <h3 class="badge-dark badge-lg m-0"><?= $val['foto']; ?></h3>
                                                                                                             <?php
                                                                                                             if (!empty($BahanUrlMap)) {
                                                                                                             ?>
                                                                                                                 <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
-                                                                                                                    <button class="btn btn-info btn-outline-primary pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i></button>
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_2']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto_2']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_2']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_3']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto_3']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_3']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_4']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto_4']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_4']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-bahan/" . $val['foto_5']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bahan/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto_5']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_5']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
                                                                                                                 </a>
                                                                                                             <?php } ?>
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
+                                                                                            <!-- END Modal Foto View -->
+                                                                                        </td>
+                                                                                        <td class="text-center">
+                                                                                            <?php
+                                                                                            $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
+                                                                                            if ($val['status'] == 1) {
+                                                                                            ?>
+                                                                                                <div class="btn btn-success btn-icon-split">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        <i class="fas fa-check"></i>
+                                                                                                    </span>
+                                                                                                    <span class="text"> Approved</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            } else if ($val['status'] == 2) {
+                                                                                            ?>
+                                                                                                <div class="btn btn-warning btn-icon-split">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        &times;
+                                                                                                    </span>
+                                                                                                    <span class="text"> Rejected</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                            ?>
+                                                                                                <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvBahan . "/" . $val['id_harianbahan'] . "/" . $urlx; ?>">
+                                                                                                    Approve
+                                                                                                </a>
+                                                                                                <hr class="m-1">
+                                                                                                <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvBahan . "/" . $val['id_harianbahan'] . "/"  . $urlx; ?>">
+                                                                                                    Reject
+                                                                                                </a>
+                                                                                            <?php
+                                                                                            } else {
+                                                                                            ?>
+                                                                                                <div class="btn btn-danger btn-icon-split" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        <i class="fas fa-sync"></i>
+                                                                                                    </span>
+                                                                                                    <span class="text"> Proses</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            }
+                                                                                            ?>
                                                                                         </td>
                                                                                     </tr>
                                                                                 <?php }
@@ -783,11 +1204,13 @@
                                                                                         <th>Luas</th>
                                                                                         <th>Keterangan</th>
                                                                                         <th>Foto</th>
+                                                                                        <th>Approvals</th>
                                                                                     </tr>
                                                                                     <?php
                                                                                     $ni = 1;
                                                                                     $sql = $this->db->get_where('harianbibit', ['id_bibit' => $valueBibit['id_bibit'], 'id_petak' => $lokasi['id_petak']])->result_array();
                                                                                     foreach ($sql as $val) {
+                                                                                        error_reporting(0);
                                                                                         $pl = $this->db->get_where('dt_user', ['id_user' => $val['id_user']])->row_array();
                                                                                     ?>
                                                                                         <tr>
@@ -801,45 +1224,142 @@
                                                                                             <td><?= $val['luas']; ?></td>
                                                                                             <td class="text-left"><?= $val['keterangan']; ?></td>
                                                                                             <td>
-                                                                                                <center>
+                                                                                                <center data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
                                                                                                     <?php
-                                                                                                    if (file_exists("assets/img/peng-bibit/" . $val['foto'])) {
-                                                                                                    ?>
-                                                                                                        <button type="button" class="btn btn-info p-0" data-toggle="modal" data-target="#fotoViewBibit<?= $val['id_harianbibit'] ?>">
-                                                                                                            <img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto']; ?>" alt="" width="60px" height="60px" style="cursor:zoom-in" data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
+                                                                                                    if (file_exists("assets/img/peng-bibit/" . $val['foto']) || file_exists("assets/img/peng-bibit/" . $val['foto_2']) || file_exists("assets/img/peng-bibit/" . $val['foto_3']) || file_exists("assets/img/peng-bibit/" . $val['foto_4']) || file_exists("assets/img/peng-bibit/" . $val['foto_5'])) { ?>
+                                                                                                        <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoViewBibit<?= $val['id_harianbibit'] ?>" style="cursor:zoom-in">
+                                                                                                            <i class="fas fa-seedling fa-fa-3x"></i>
                                                                                                         </button>
                                                                                                     <?php
-                                                                                                    } else {
-                                                                                                    ?>
-                                                                                                        <button type="button" class="btn btn-info">
+                                                                                                    } else { ?>
+                                                                                                        <button type="button" class="btn btn-info text-sm">
                                                                                                             Image not <br> found..
                                                                                                         </button>
                                                                                                     <?php
                                                                                                     }
                                                                                                     ?>
                                                                                                 </center>
-                                                                                                <!-- Modal Foto View -->
                                                                                                 <div class="modal fade" id="fotoViewBibit<?= $val['id_harianbibit'] ?>" tabindex="-1" aria-labelledby="fotoViewBibit<?= $val['id_harianbibit'] ?>Label" aria-hidden="true">
                                                                                                     <div class="modal-dialog modal-xl" style="width: 100%;">
-                                                                                                        <div class="modal-content" style="background-color: transparent;">
-                                                                                                            <div class="modal-body modal-open text-center m-0 p-0">
-                                                                                                                <img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>">
+                                                                                                        <div class="modal-content">
+                                                                                                            <div class="modal-body modal-open text-center m-0 p-0" style="background-color: transparent;">
                                                                                                                 <?php
-                                                                                                                $BibitimageURL = "assets/img/peng-bibit/" . $val['foto'];
-                                                                                                                $BibitUrlMap = get_image_location($BibitimageURL);
+                                                                                                                $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto']);
+                                                                                                                $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                                 ?>
+                                                                                                                <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                                 <h3 class="badge-dark badge-lg m-0"><?= $val['foto']; ?></h3>
                                                                                                                 <?php
-                                                                                                                if (!empty($BibitUrlMap)) {
+                                                                                                                if (!empty($BahanUrlMap)) {
                                                                                                                 ?>
-                                                                                                                    <a target="_blank" href="https://maps.google.com/maps?q=<?= $BibitUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
-                                                                                                                        <button class="btn btn-info btn-outline-primary pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i></button>
+                                                                                                                    <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                        <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                    </a>
+                                                                                                                <?php } ?>
+                                                                                                                <hr>
+                                                                                                                <?php
+                                                                                                                $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_2']);
+                                                                                                                $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                                ?>
+                                                                                                                <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto_2']; ?>"></a>
+                                                                                                                <h3 class="badge-dark badge-lg m-0"><?= $val['foto_2']; ?></h3>
+                                                                                                                <?php
+                                                                                                                if (!empty($BahanUrlMap)) {
+                                                                                                                ?>
+                                                                                                                    <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                        <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                    </a>
+                                                                                                                <?php } ?>
+                                                                                                                <hr>
+                                                                                                                <?php
+                                                                                                                $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_3']);
+                                                                                                                $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                                ?>
+                                                                                                                <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto_3']; ?>"></a>
+                                                                                                                <h3 class="badge-dark badge-lg m-0"><?= $val['foto_3']; ?></h3>
+                                                                                                                <?php
+                                                                                                                if (!empty($BahanUrlMap)) {
+                                                                                                                ?>
+                                                                                                                    <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                        <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                    </a>
+                                                                                                                <?php } ?>
+                                                                                                                <hr>
+                                                                                                                <?php
+                                                                                                                $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_4']);
+                                                                                                                $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                                ?>
+                                                                                                                <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto_4']; ?>"></a>
+                                                                                                                <h3 class="badge-dark badge-lg m-0"><?= $val['foto_4']; ?></h3>
+                                                                                                                <?php
+                                                                                                                if (!empty($BahanUrlMap)) {
+                                                                                                                ?>
+                                                                                                                    <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                        <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                    </a>
+                                                                                                                <?php } ?>
+                                                                                                                <hr>
+                                                                                                                <?php
+                                                                                                                $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_5']);
+                                                                                                                $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                                ?>
+                                                                                                                <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto_5']; ?>"></a>
+                                                                                                                <h3 class="badge-dark badge-lg m-0"><?= $val['foto_5']; ?></h3>
+                                                                                                                <?php
+                                                                                                                if (!empty($BahanUrlMap)) {
+                                                                                                                ?>
+                                                                                                                    <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                        <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
                                                                                                                     </a>
                                                                                                                 <?php } ?>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </div>
+                                                                                                <!-- END Modal Foto View -->
+                                                                                            </td>
+                                                                                            <td class="text-center">
+                                                                                                <?php
+                                                                                                $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
+                                                                                                if ($val['status'] == 1) {
+                                                                                                ?>
+                                                                                                    <div class="btn btn-success btn-icon-split">
+                                                                                                        <span class="icon text-white-50">
+                                                                                                            <i class="fas fa-check"></i>
+                                                                                                        </span>
+                                                                                                        <span class="text"> Approved</span>
+                                                                                                    </div>
+                                                                                                <?php
+                                                                                                } else if ($val['status'] == 2) {
+                                                                                                ?>
+                                                                                                    <div class="btn btn-warning btn-icon-split">
+                                                                                                        <span class="icon text-white-50">
+                                                                                                            &times;
+                                                                                                        </span>
+                                                                                                        <span class="text"> Rejected</span>
+                                                                                                    </div>
+                                                                                                <?php
+                                                                                                } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                                ?>
+                                                                                                    <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvBibit . "/" . $val['id_harianbibit'] . "/" . $urlx; ?>">
+                                                                                                        Approve
+                                                                                                    </a>
+                                                                                                    <hr class="m-1">
+                                                                                                    <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvBibit . "/" . $val['id_harianbibit'] . "/"  . $urlx; ?>">
+                                                                                                        Reject
+                                                                                                    </a>
+                                                                                                <?php
+                                                                                                } else {
+                                                                                                ?>
+                                                                                                    <div class="btn btn-danger btn-icon-split" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
+                                                                                                        <span class="icon text-white-50">
+                                                                                                            <i class="fas fa-sync"></i>
+                                                                                                        </span>
+                                                                                                        <span class="text"> Proses</span>
+                                                                                                    </div>
+                                                                                                <?php
+                                                                                                }
+                                                                                                ?>
                                                                                             </td>
                                                                                         </tr>
                                                                                     <?php }
@@ -909,11 +1429,13 @@
                                                                                     <th>Keterangan</th>
                                                                                     <th>Foto</th>
                                                                                     <th>Video</th>
+                                                                                    <th>Approvals</th>
                                                                                 </tr>
                                                                                 <?php
                                                                                 $nih = 1;
                                                                                 foreach ($harianlapangan as $val) {
                                                                                     $pl = $this->db->get_where('dt_user', ['id_user' => $val['id_user']])->row_array();
+                                                                                    error_reporting(0);
                                                                                 ?>
                                                                                     <tr>
                                                                                         <td><?= $nih++; ?></td>
@@ -926,34 +1448,99 @@
                                                                                         <td><?= $val['luas']; ?></td>
                                                                                         <td class="text-left"><?= $val['keterangan']; ?></td>
                                                                                         <td>
-                                                                                            <center>
-                                                                                                <button type="button" class="btn btn-info p-0" data-toggle="modal" data-target="#fotoViewLapangan<?= $val['id_harianlapangan'] ?>">
-                                                                                                    <img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto']; ?>" alt="" width="50px" height="50px" style="cursor:zoom-in" data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
-                                                                                                </button>
+                                                                                            <center data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
+                                                                                                <?php
+                                                                                                if (file_exists("assets/img/peng-lapangan/" . $val['foto']) || file_exists("assets/img/peng-lapangan/" . $val['foto_2']) || file_exists("assets/img/peng-lapangan/" . $val['foto_3']) || file_exists("assets/img/peng-lapangan/" . $val['foto_4']) || file_exists("assets/img/peng-lapangan/" . $val['foto_5'])) { ?>
+                                                                                                    <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoViewLapangan<?= $val['id_harianlapangan'] ?>" style="cursor:zoom-in">
+                                                                                                        <i class="fas fa-seedling fa-fa-3x"></i>
+                                                                                                    </button>
+                                                                                                <?php
+                                                                                                } else { ?>
+                                                                                                    <button type="button" class="btn btn-info text-sm">
+                                                                                                        Image not <br> found..
+                                                                                                    </button>
+                                                                                                <?php
+                                                                                                }
+                                                                                                ?>
                                                                                             </center>
-                                                                                            <!-- Modal Foto View -->
-                                                                                            <div class="modal" id="fotoViewLapangan<?= $val['id_harianlapangan'] ?>" tabindex="-1" aria-labelledby="fotoViewLapangan<?= $val['id_harianlapangan'] ?>Label" aria-hidden="true">
+                                                                                            <div class="modal fade" id="fotoViewLapangan<?= $val['id_harianlapangan'] ?>" tabindex="-1" aria-labelledby="fotoViewLapangan<?= $val['id_harianlapangan'] ?>Label" aria-hidden="true">
                                                                                                 <div class="modal-dialog modal-xl" style="width: 100%;">
-                                                                                                    <div class="modal-content" style="background-color: transparent;">
-                                                                                                        <div class="modal-body modal-open text-center m-0 p-0">
-                                                                                                            <img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"><br>
+                                                                                                    <div class="modal-content">
+                                                                                                        <div class="modal-body modal-open text-center m-0 p-0" style="background-color: transparent;">
                                                                                                             <?php
-                                                                                                            $LapimageURL = "assets/img/peng-lapangan/" . $val['foto'];
-                                                                                                            $LapUrlMap = get_image_location($LapimageURL);
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                             ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                             <h3 class="badge-dark badge-lg m-0"><?= $val['foto']; ?></h3>
                                                                                                             <?php
-                                                                                                            if (!empty($LapUrlMap)) {
+                                                                                                            if (!empty($BahanUrlMap)) {
                                                                                                             ?>
-                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $LapUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
-                                                                                                                    <button class="btn btn-info btn-outline-primary pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i></button>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
                                                                                                                 </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
                                                                                                             <?php
-                                                                                                            } ?>
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_2']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto_2']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_2']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_3']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto_3']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_3']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_4']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto_4']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_4']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
+                                                                                                            <hr>
+                                                                                                            <?php
+                                                                                                            $BahanimageURL = base_url("assets/img/peng-lapangan/" . $val['foto_5']);
+                                                                                                            $BahanUrlMap = get_image_location($BahanimageURL);
+                                                                                                            ?>
+                                                                                                            <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-lapangan/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto_5']; ?>"></a>
+                                                                                                            <h3 class="badge-dark badge-lg m-0"><?= $val['foto_5']; ?></h3>
+                                                                                                            <?php
+                                                                                                            if (!empty($BahanUrlMap)) {
+                                                                                                            ?>
+                                                                                                                <a target="_blank" href="https://maps.google.com/maps?q=<?= $BahanUrlMap; ?>" data-toggle="tooltip" data-placement="top" title="Klik untuk melihat Lokasi di google maps.">
+                                                                                                                    <button class="btn btn-info btn-outline-primary m-1 pl-5 pr-5"> <i class="fas fa-map-marked-alt"></i> Klik untuk melihat titik lokasi pengambilan gambar di google maps</button>
+                                                                                                                </a>
+                                                                                                            <?php } ?>
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
+                                                                                            <!-- END Modal Foto View -->
                                                                                         </td>
                                                                                         <td class="text-center">
                                                                                             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#videoView<?= $val['id_harianlapangan'] ?>">
@@ -963,7 +1550,7 @@
                                                                                                 <div class="modal-dialog modal-lg" style="width: 100%;">
                                                                                                     <div class="modal-content" style=" background-color: black;">
                                                                                                         <div class="modal-body modal-open text-center m-0 p-0">
-                                                                                                            <video height="100%" controls>
+                                                                                                            <video width="100%" controls>
                                                                                                                 <source src="<?= base_url('assets/'); ?>img/peng-video/<?= $val['video']; ?>" type="video/mp4">
                                                                                                                 Your browser does not support the video tag.
                                                                                                             </video>
@@ -971,6 +1558,49 @@
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
+                                                                                        </td>
+                                                                                        <td class="text-center">
+                                                                                            <?php
+                                                                                            $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
+                                                                                            if ($val['status'] == 1) {
+                                                                                            ?>
+                                                                                                <div class="btn btn-success btn-icon-split">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        <i class="fas fa-check"></i>
+                                                                                                    </span>
+                                                                                                    <span class="text"> Approved</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            } else if ($val['status'] == 2) {
+                                                                                            ?>
+                                                                                                <div class="btn btn-warning btn-icon-split">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        &times;
+                                                                                                    </span>
+                                                                                                    <span class="text"> Rejected</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                            ?>
+                                                                                                <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvLapangan . "/" . $val['id_harianlapangan'] . "/" . $urlx; ?>">
+                                                                                                    Approve
+                                                                                                </a>
+                                                                                                <hr class="m-1">
+                                                                                                <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvLapangan . "/" . $val['id_harianlapangan'] . "/"  . $urlx; ?>">
+                                                                                                    Reject
+                                                                                                </a>
+                                                                                            <?php
+                                                                                            } else {
+                                                                                            ?>
+                                                                                                <div class="btn btn-danger btn-icon-split" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
+                                                                                                    <span class="icon text-white-50">
+                                                                                                        <i class="fas fa-sync"></i>
+                                                                                                    </span>
+                                                                                                    <span class="text"> Proses</span>
+                                                                                                </div>
+                                                                                            <?php
+                                                                                            }
+                                                                                            ?>
                                                                                         </td>
                                                                                     </tr>
                                                                                 <?php }

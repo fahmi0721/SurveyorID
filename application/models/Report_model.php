@@ -23,6 +23,10 @@ class Report_model extends CI_Model
     {
         return $this->db->query("SELECT id_petak FROM harianlapangan GROUP BY id_petak ORDER BY id_petak ASC")->num_rows();
     }
+    public function totalBibitPertama()
+    {
+        return $this->db->query("SELECT id_kab FROM harianbibit_i GROUP BY id_kab ORDER BY id_kab ASC")->num_rows();
+    }
 
     // Grafik Pengawasan
     public function LoadBahan()
@@ -37,6 +41,18 @@ class Report_model extends CI_Model
     {
         return $this->db->query("SELECT tgl AS tglap FROM harianlapangan GROUP BY tgl ORDER BY tgl ASC")->result_array();
     }
+    public function LoadTallysheet()
+    {
+        return $this->db->query("SELECT tgl AS tgltally FROM harianbibit_i GROUP BY tgl ORDER BY tgl ASC")->result_array();
+    }
+    public function LoadTallysheetBibitx()
+    {
+        return $this->db->query("SELECT bibit.id_bibit, bibit.nm_bibit FROM harianbibit_i, bibit WHERE harianbibit_i.id_bibit=bibit.id_bibit GROUP BY bibit.id_bibit ORDER BY bibit.id_bibit ASC")->result_array();
+    }
+    public function getBibitTotal($bibit)
+    {
+        return $this->db->query("select SUM(nilai_pertama) AS pertama, SUM(nilai_kedua) AS kedua, SUM(nilai_ketiga) AS ketiga FROM harianbibit_i WHERE id_bibit='$bibit' ")->row_array();
+    }
 
     public function getKegiatanBahan($tgl)
     {
@@ -49,6 +65,10 @@ class Report_model extends CI_Model
     public function getKegiatanLap($tgl)
     {
         return $this->db->query("SELECT count(id_spklapangan) AS jum FROM harianlapangan WHERE tgl = '$tgl' AND nilai_harianlapangan != '0' ")->row_array();
+    }
+    public function getKegiatanTallysheet($tgl)
+    {
+        return $this->db->query("SELECT count(id_bibit) AS jum FROM harianbibit_i WHERE tgl = '$tgl' ")->row_array();
     }
 
     // data logs 
@@ -107,6 +127,28 @@ class Report_model extends CI_Model
         }
         return $res;
     }
+
+    public function getReportBlokCountTally($IdKab, $IdKec, $IdDesa, $IdBlok)
+    {
+        $bibit = "SELECT COUNT(id_harianbibit_i) AS stokbibit FROM harianbibit_i WHERE id_kab='$IdKab' AND id_kec = '$IdKec' AND id_desa = '$IdDesa' AND id_blok = '$IdBlok'";
+        $data['stokbibit'] = $this->db->query($bibit)->row_array()['stokbibit'];
+        return $data;
+    }
+
+    // public function getBlokTallysheet($IdKab, $IdKec, $IdDes)
+    // {
+    //     $res = array();
+    //     foreach ($this->LoadBlok($IdDes) as $r) {
+    //         $cek = $this->getReportBlokCountTally($IdKab, $IdKec, $IdDes, $r['id_blok']);
+    //         $r['id_kabupaten'] = $IdKab;
+    //         $r['id_kecamatan'] = $IdKec;
+    //         $r['id_desa'] = $IdDes;
+    //         if ($cek['stokbibit'] > 0) {
+    //             $res[] = $r;
+    //         }
+    //     }
+    //     return $res;
+    // }
 
     public function LoadHarianLokasi($id)
     {
@@ -186,8 +228,35 @@ class Report_model extends CI_Model
         return $this->db->query($SQL)->row_array();
     }
 
-
-    // VIEW PENGAWASAN BIBIT 
+    // VIEW PENGAWASAN BIBIT PERTAMA
+    public function getBibitUserPertama($id_user)
+    {
+        $kueri = "SELECT * FROM dt_kabupaten, harianbibit_i
+                    WHERE dt_kabupaten.id_kabupaten = harianbibit_i.id_kab
+                    AND harianbibit_i.id_user = '$id_user'
+                    GROUP BY dt_kabupaten.id_kabupaten ORDER BY dt_kabupaten.id_kabupaten DESC ";
+        return $this->db->query($kueri)->result_array();
+    }
+    public function getBibitUserBlokPertama($id_desa, $id_user)
+    {
+        $kueri = "SELECT * FROM tb_blok, tb_petak, harianbibit_i
+                    WHERE tb_blok.id_blok = tb_petak.id_blok
+                    AND tb_petak.id_petak = harianbibit_i.id_petak
+                    AND tb_blok.id_desa = '$id_desa'
+                    AND harianbibit_i.id_user = '$id_user'
+                    GROUP BY tb_blok.id_blok ORDER BY tb_blok.id_blok ASC ";
+        return $this->db->query($kueri)->result_array();
+    }
+    public function getBibitPertamaUserPetak($id_user, $id_blok)
+    {
+        $kueri = "SELECT * FROM tb_petak, harianbibit_i
+                    WHERE tb_petak.id_petak = harianbibit_i.id_petak
+                    AND tb_petak.id_blok = '$id_blok'
+                    AND harianbibit_i.id_user = '$id_user'
+                    GROUP BY tb_petak.id_petak ORDER BY tb_petak.id_petak ASC ";
+        return $this->db->query($kueri)->result_array();
+    }
+    // VIEW PENGAWASAN BIBIT KEDUA
     public function getBibitUser($id_user)
     {
         $kueri = "SELECT * FROM dt_kabupaten, dt_kecamatan, dt_desa, tb_blok, tb_petak, harianbibit
@@ -256,6 +325,39 @@ class Report_model extends CI_Model
     public function getRealisasiBibitnya($idspk)
     {
         $sql = "SELECT SUM(nilai_harianbibit) AS nilaibibit FROM harianbibit WHERE id_spkbibit='$idspk' ";
+        return $this->db->query($sql)->row_array();
+    }
+
+    // Input - View Detail pengawasan bibit Tahap 1 Page PL 
+    public function getDetPengawasanBibitPl($idkab, $id_user)
+    {
+        $kueri = "SELECT * FROM dt_kabupaten, harianbibit_i, dt_user
+                    WHERE dt_kabupaten.id_kabupaten = harianbibit_i.id_kab 
+                    AND harianbibit_i.id_user = dt_user.id_user
+                    AND harianbibit_i.id_kab = '$idkab'
+                    AND harianbibit_i.id_user = '$id_user'
+                    GROUP BY harianbibit_i.id_kab ORDER BY harianbibit_i.id_kab DESC ";
+        return $this->db->query($kueri)->row_array();
+    }
+    public function getPengawasanTotLuasTallysheetPl($kab, $id_user)
+    {
+        $sql = "SELECT SUM(luas) AS nilaibibit FROM harianbibit_i WHERE id_kab='$kab' AND id_user='$id_user' ";
+        $data['nilaibibit'] = $this->db->query($sql)->row_array()['nilaibibit'];
+        return $data;
+    }
+    public function getJumBibitTallysheetPl($kab, $user)
+    {
+        $sql = "SELECT SUM(nilai_pertama) AS pertama, SUM(nilai_kedua) AS kedua, SUM(nilai_ketiga) AS ketiga FROM `harianbibit_i` WHERE id_kab='$kab' AND id_user='$user' ";
+        return $this->db->query($sql)->row_array();
+    }
+    public function getkabTallysheetBibit($kab, $user)
+    {
+        $sql = "SELECT bibit.id_bibit, bibit.nm_bibit FROM bibit, harianbibit_i WHERE harianbibit_i.id_bibit=bibit.id_bibit AND harianbibit_i.id_kab='$kab' AND harianbibit_i.id_user='$user' GROUP BY bibit.id_bibit ORDER BY bibit.id_bibit ASC";
+        return $this->db->query($sql)->result_array();
+    }
+    public function getBibitProgresTallysheetPl($kab, $bibit, $user)
+    {
+        $sql = "SELECT SUM(nilai_pertama) AS pertama, SUM(nilai_kedua) AS kedua, SUM(nilai_ketiga) AS ketiga FROM `harianbibit_i` WHERE id_kab='$kab' AND id_bibit='$bibit' AND id_user='$user' ";
         return $this->db->query($sql)->row_array();
     }
 
@@ -441,6 +543,12 @@ class Report_model extends CI_Model
         $data['stokbibit'] = $this->db->query($bahan)->row_array()['stokbibit'];
         return $data;
     }
+    public function getReportbibitCount($IdKab, $IdKec, $IdDesa)
+    {
+        $bibit = "SELECT COUNT(id_harianbibit_i) AS stokbibit FROM harianbibit_i WHERE id_kab='$IdKab' AND id_kec = '$IdKec' AND id_desa = '$IdDesa'";
+        $data['stokbibit'] = $this->db->query($bibit)->row_array()['stokbibit'];
+        return $data;
+    }
 
     public function getReportBlokCount($IdKab, $IdKec, $IdDesa, $IdBlok)
     {
@@ -518,7 +626,6 @@ class Report_model extends CI_Model
     }
 
 
-
     public function LoadPetak($IdKab, $IdKec, $IdDes, $IdBlok)
     {
         $res = array();
@@ -542,6 +649,87 @@ class Report_model extends CI_Model
         }
         return $res;
     }
+    // tally sheet bibit - report 
+    public function tallySheet()
+    {
+        $sql = "SELECT * FROM dt_kabupaten, harianbibit_i WHERE dt_kabupaten.id_kabupaten=harianbibit_i.id_kab GROUP BY dt_kabupaten.id_kabupaten ORDER BY dt_kabupaten.id_kabupaten ASC ";
+        return $this->db->query($sql)->result_array();
+    }
+    public function getReportPetakCountTally($IdKab, $IdKec, $IdDesa, $IdBlok, $IdPetak)
+    {
+        $bahan = "SELECT COUNT(id_harianbibit_i) AS stokbibit FROM harianbibit_i WHERE id_kab='$IdKab' AND id_kec = '$IdKec' AND id_desa = '$IdDesa' AND id_blok = '$IdBlok'  AND id_petak = '$IdPetak'";
+        $data['stokbibit'] = $this->db->query($bahan)->row_array()['stokbibit'];
+        return $data;
+    }
+
+    public function LoadHarianLokasiTallysheet($id)
+    {
+        $kueri = "SELECT * FROM dt_kabupaten, harianbibit_i
+            WHERE dt_kabupaten.id_kabupaten = harianbibit_i.id_kab 
+            AND harianbibit_i.id_kab =  '$id'
+            GROUP BY  harianbibit_i.id_kab ORDER BY harianbibit_i.id_kab ASC ";
+        return $this->db->query($kueri)->row_array();
+    }
+    public function getPengawasanTotLuasTallysheet($kab)
+    {
+        $sql = "SELECT SUM(luas) AS nilaibibit FROM harianbibit_i WHERE id_kab='$kab'";
+        $data['nilaibibit'] = $this->db->query($sql)->row_array()['nilaibibit'];
+        return $data;
+    }
+    public function getJumBibitTallysheet($kab)
+    {
+        $sql = "SELECT SUM(nilai_pertama) AS pertama, SUM(nilai_kedua) AS kedua, SUM(nilai_ketiga) AS ketiga FROM `harianbibit_i` WHERE id_kab='$kab'";
+        return $this->db->query($sql)->row_array();
+    }
+    public function getkabTallysheetBibitReport($kab)
+    {
+        $sql = "SELECT bibit.id_bibit, bibit.nm_bibit FROM bibit, harianbibit_i WHERE harianbibit_i.id_bibit=bibit.id_bibit AND harianbibit_i.id_kab='$kab' GROUP BY bibit.id_bibit ORDER BY bibit.id_bibit ASC";
+        return $this->db->query($sql)->result_array();
+    }
+    public function getBibitProgresTallysheet($kab, $bibit)
+    {
+        $sql = "SELECT SUM(nilai_pertama) AS pertama, SUM(nilai_kedua) AS kedua, SUM(nilai_ketiga) AS ketiga FROM `harianbibit_i` WHERE id_kab='$kab' AND id_bibit='$bibit' ";
+        return $this->db->query($sql)->row_array();
+    }
+
+    // tallySheet report TGL
+    public function getPengawasanTotLuasTallysheetTgl($kab, $tgl)
+    {
+        $sql = "SELECT SUM(luas) AS nilaibibit FROM harianbibit_i WHERE id_kab='$kab' AND tgl='$tgl' ";
+        $data['nilaibibit'] = $this->db->query($sql)->row_array()['nilaibibit'];
+        return $data;
+    }
+    public function getJumBibitTallysheetTgl($kab, $tgl)
+    {
+        $sql = "SELECT SUM(nilai_pertama) AS pertama, SUM(nilai_kedua) AS kedua, SUM(nilai_ketiga) AS ketiga FROM `harianbibit_i` WHERE id_kab='$kab' AND tgl='$tgl' ";
+        return $this->db->query($sql)->row_array();
+    }
+    public function getkabTallysheetBibitReportTgl($kab, $tgl)
+    {
+        $sql = "SELECT bibit.id_bibit, bibit.nm_bibit FROM bibit, harianbibit_i WHERE harianbibit_i.id_bibit=bibit.id_bibit AND harianbibit_i.id_kab='$kab' AND harianbibit_i.tgl='$tgl' GROUP BY bibit.id_bibit ORDER BY bibit.id_bibit ASC";
+        return $this->db->query($sql)->result_array();
+    }
+    public function getBibitProgresTallysheetTgl($kab, $bibit, $tgl)
+    {
+        $sql = "SELECT SUM(nilai_pertama) AS pertama, SUM(nilai_kedua) AS kedua, SUM(nilai_ketiga) AS ketiga FROM `harianbibit_i` WHERE id_kab='$kab' AND id_bibit='$bibit' AND tgl='$tgl' ";
+        return $this->db->query($sql)->row_array();
+    }
+
+    // public function LoadPetakTally($IdKab, $IdKec, $IdDes, $IdBlok)
+    // {
+    //     $res = array();
+    //     foreach ($this->LoadPetakx($IdBlok) as $r) {
+    //         $cek = $this->getReportPetakCountTally($IdKab, $IdKec, $IdDes, $IdBlok, $r['id_petak']);
+    //         $r['id_kabupaten'] = $IdKab;
+    //         $r['id_kecamatan'] = $IdKec;
+    //         $r['id_desa'] = $IdDes;
+    //         $r['id_blok'] = $IdBlok;
+    //         if ($cek['stokbibit'] > 0) {
+    //             $res[] = $r;
+    //         }
+    //     }
+    //     return $res;
+    // }
 
     public function getPengawasanTotLuasTgl($petak, $tgl)
     {

@@ -5,10 +5,10 @@
     <!-- Page Heading -->
     <div class="row" style="font-family: Calibri;">
         <div class="col-sm-10">
-            <h1 class="h3 mb-4 text-capitalize font-weight-bold"><a href="<?= base_url('input'); ?>"><?= $title; ?></a><small class="text-info">/Pengadaan Bibit</small></h1>
+            <h1 class="h3 mb-4 text-capitalize font-weight-bold"><a href="<?= base_url('input'); ?>"><?= $title; ?></a><small class="text-info">/Pengadaan Bibit (Tahap II)</small></h1>
         </div>
         <div class="col-sm-2 text-right">
-            <a href="<?= base_url('input'); ?> " class="badge badge-info" title="kembali ke halaman pengawasan harian"><i class="fas fa-fw fa-chevron-circle-left fa-sm"></i> kembali</a>
+            <a href="<?= base_url('input'); ?> " class="btn btn-sm btn-info" title="kembali ke halaman pengawasan harian"><i class="fas fa-fw fa-chevron-circle-left fa-sm"></i> kembali</a>
         </div>
         <div class="col-sm-12">
             <?= $this->session->flashdata('message'); ?>
@@ -18,7 +18,7 @@
             <div class="card">
                 <div class="card-shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Form Pengawasan Pekerjaan Harian Bibit</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Form Pengawasan Pekerjaan Harian Bibit (Tahap II)</h6>
                     </div>
                     <div class="card-body">
                         <!-- form  -->
@@ -40,7 +40,7 @@
                                     <div class="col-sm-12 my-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Petugas Lapangan</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Petugas Lapangan</div>
                                             </div>
                                             <input type="text" class="form-control" id="petugas" name="petugas" placeholder="Nama" required data-toggle="tooltip" data-placement="left" title="Nama  Petugas Lapangan">
                                         </div>
@@ -50,7 +50,7 @@
                                     <div class="col-sm-12 my-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Kabupaten</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Kabupaten</div>
                                             </div>
                                             <select name="kabupat" id="kabupat" class="form-control col-md-12" required data-toggle="tooltip" data-placement="left" title="Pilih Kabupaten">
                                                 <option value="">Pilih Kabupaten</option>
@@ -65,7 +65,7 @@
                                     <div class="col-sm-12 my-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Kecamatan</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Kecamatan</div>
                                             </div>
                                             <select name="kecamat" id="kecamat" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Kecamatan">
                                                 <option value=''>Pilih Kabupaten Terlebih Dahulu</option>
@@ -77,7 +77,7 @@
                                     <div class="col-sm-12 my-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Desa</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Desa</div>
                                             </div>
                                             <select name="deselect" id="deselect" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Desa">
                                                 <option value=''>Pilih Kecamatan Terlebih Dahulu</option>
@@ -89,7 +89,7 @@
                                     <div class="col-sm-12 my-2">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Blok</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Blok</div>
                                             </div>
                                             <select name="blok" id="blok" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Blok">
                                                 <option value=''>Pilih Desa Terlebih Dahulu</option>
@@ -101,7 +101,7 @@
                                     <div class="col-sm-12 mb-2">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Petak</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Petak</div>
                                             </div>
                                             <select name="petak" id="petak" onchange="getJenisbibit()" class="form-control" required data-toggle="tooltip" data-placement="left" title="Pilih Petak">
                                                 <option value=''>Pilih Blok Terlebih Dahulu</option>
@@ -115,7 +115,7 @@
                                     <div class="col-sm-12 mb-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Jenis Bibit</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Jenis Bibit</div>
                                             </div>
                                             <select name="jenisbibit" id="jenisbibit" onchange="getBibit()" class="form-control" required>
                                                 <option value=''>Pilih Petak Terlebih Dahulu</option>
@@ -127,7 +127,7 @@
                                     <div class="col-sm-12 mb-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Nama Bibit</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Nama Bibit</div>
                                             </div>
                                             <select name="bibit" id="bibit" onchange="getSatuan()" class="form-control" required>
                                                 <option value=''>Pilih Jenis Bibit Terlebih Dahulu</option>
@@ -139,7 +139,7 @@
                                     <div class="col-sm-12 mb-1">
                                         <div class="input-group">
                                             <div class="input-group-prepend ">
-                                                <div class="input-group-text font-weight-bold">Nilai Volume</div>
+                                                <div class="input-group-text font-weight-bold"><span class="text-danger pr-1">*</span> Nilai Volume</div>
                                             </div>
                                             <input type="text" class="form-control" id="volume" name="volume" placeholder="0" required>
                                             <div class="input-group-prepend" id="satuan">
@@ -157,7 +157,7 @@
                                 <div class="form-row align-items-center">
                                     <div class="col-sm-12 mb-1">
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="luas" name="luas" placeholder="luas" required data-toggle="tooltip" data-placement="left" title="Luas">
+                                            <input type="number" class="form-control" id="luas" name="luas" placeholder="luas" data-toggle="tooltip" data-placement="left" title="Luas">
                                             <div class="input-group-prepend ">
                                                 <div class="input-group-text font-weight-bold">&nbsp; Ha</div>
                                             </div>
@@ -168,7 +168,7 @@
                                     <div class="col-auto">
                                         <div class="input-group mb-1">
                                             <div class="input-group-prepend">
-                                                <div class="input-group-text font-sm font-weight-bold">Tanggal Pengawasan </div>
+                                                <div class="input-group-text font-sm font-weight-bold"><span class="text-danger pr-1">*</span> Tanggal Pengawasan </div>
                                             </div>
                                             <?php
                                             $today = date('Y-m-d');
@@ -183,15 +183,48 @@
                         </div>
                         <div class="form-group">
                             <div class="form-group row">
-                                <label for="video" class="col-sm-2 col-form-label">File Foto</label>
+                                <label for="video" class="col-sm-2 col-form-label"><span class="text-danger pr-1">*</span> File Foto</label>
                                 <div class="col-sm-10">
-                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto" name="foto" required data-toggle="tooltip" data-placement="left" title="Foto pengawasan">
+                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto" name="foto" required data-toggle="tooltip" data-placement="left" title="Bukti foto pengawasan">
                                     <label for="foto" class="custom-file-label form-control-sm">Choose File</label>
-                                    <small class="text-danger ml-0">*ekstensi file .jpeg/.jpg/.png/.gif | maksimal ukuran 1Mb</small>
+                                    <small class="text-info ml-0">*ekstensi file .jpeg/.jpg/.png/.gif | maksimal ukuran 5Mb</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="foto2" class="col-sm-2 col-form-label"><span class="text-danger pr-1">*</span> File Foto</label>
+                                <div class="col-sm-10">
+                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto2" name="foto2" required data-toggle="tooltip" data-placement="left" title="Foto pengawasan">
+                                    <label for="foto" class="custom-file-label form-control-sm">Choose File</label>
+                                    <small class="text-info ml-0">ekstensi file .jpeg/.jpg/.png/.gif | maksimal ukuran 5Mb</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="foto3" class="col-sm-2 col-form-label"><span class="text-danger pr-1">*</span> File Foto</label>
+                                <div class="col-sm-10">
+                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto3" name="foto3" required data-toggle="tooltip" data-placement="left" title="Foto pengawasan">
+                                    <label for="foto" class="custom-file-label form-control-sm">Choose File</label>
+                                    <small class="text-info ml-0">ekstensi file .jpeg/.jpg/.png/.gif | maksimal ukuran 5Mb</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="foto4" class="col-sm-2 col-form-label"><span class="text-danger pr-1">*</span> File Foto</label>
+                                <div class="col-sm-10">
+                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto4" name="foto4" required data-toggle="tooltip" data-placement="left" title="Foto pengawasan">
+                                    <label for="foto" class="custom-file-label form-control-sm">Choose File</label>
+                                    <small class="text-info ml-0">ekstensi file .jpeg/.jpg/.png/.gif | maksimal ukuran 5Mb</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="foto5" class="col-sm-2 col-form-label"><span class="text-danger pr-1">*</span> File Foto</label>
+                                <div class="col-sm-10">
+                                    <input onchange="ValidateSize(this)" type="file" class="custom-file-input form-control-sm " id="foto5" name="foto5" required data-toggle="tooltip" data-placement="left" title="Foto pengawasan">
+                                    <label for="foto" class="custom-file-label form-control-sm">Choose File</label>
+                                    <small class="text-info ml-0">ekstensi file .jpeg/.jpg/.png/.gif | maksimal ukuran 5Mb</small>
                                 </div>
                             </div>
                         </div>
-                        <div class=" modal-footer">
+                        <div class="card-footer">
+                            <p><span class="text-danger pr-1">* Form isian harus di isi.</span></p>
                             <button type="submit" class="btn btn-primary btn-lg pl-5 pr-5 font-weight-bold" onclick="return confirm('Pastikan semua data yang dimasukkan sudah benar?')">Kirim</button>
                         </div>
                         </form>

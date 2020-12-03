@@ -64,11 +64,15 @@ class Admin extends CI_Controller
         $data['totbahan'] = $this->loask->totalBahan();
         $data['totbibit'] = $this->loask->totalBibit();
         $data['totlapangan'] = $this->loask->totalLapangan();
+        $data['totbibitpertama'] = $this->loask->totalBibitPertama();
         // query Grafik pengawasan 
         $this->load->model('Report_model', 'report');
         $data['tglbahan'] = $this->report->LoadBahan();
         $data['tglbibit'] = $this->report->LoadBibit();
         $data['tglap'] = $this->report->LoadLapangan();
+        // untuk grafik Tallysheet
+        $data['tgltallysheet'] = $this->report->LoadTallysheet();
+        $data['bibitsheet'] = $this->report->LoadTallysheetBibitx();
 
 
         $this->load->view('templates/header', $data);

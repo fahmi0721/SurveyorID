@@ -84,6 +84,12 @@ class Menu_model extends CI_Model
         $queri = "SELECT * FROM spkbibit_bantu, bibit WHERE spkbibit_bantu.id_bibit=bibit.id_bibit AND spkbibit_bantu.id_spkbibit='$idnya'";
         return $this->db->query($queri)->result_array();
     }
+    public function getBibitnya($idnya)
+    {
+        $queri = "SELECT bibit.id_bibit, bibit.nm_bibit FROM bibit, spkbibit_bantu, spkbibit 
+                    WHERE bibit.id_bibit=spkbibit_bantu.id_bibit AND spkbibit_bantu.id_spkbibit=spkbibit.id_spkbibit AND spkbibit.id_petak='$idnya'";
+        return $this->db->query($queri)->result_array();
+    }
 
     public function getSubMenu()
     {

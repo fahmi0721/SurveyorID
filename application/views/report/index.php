@@ -7,7 +7,7 @@
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="table-responsive table-head-fixed">
-                <table class="table table-hover table-bordered scrol" id="dataTables">
+                <table class="table table-hover table-bordered table-sm scrol" id="dataTables">
                     <thead>
                         <tr class="text-center text-lg">
                             <th>No</th>
@@ -65,6 +65,39 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <b>TALLY SHEET BIBIT</b>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <?php foreach ($tallysheet as $value) { ?>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-200 ml-0">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-1">
+                                        <div class="text-lg font-weight-bold text-primary text-uppercase mb-1">Kabupaten</div>
+                                        <div class="h1 mb-0 font-weight-bold text-capitalize text-gray-800"><?= $value['nm_kabupaten'] ?></div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-map-marker-alt fa-3x  text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="text card-footer btn-icon-split btn-sm text-lg" href="<?= base_url('report/tallysheet/') . $value['id_kabupaten']; ?>" title="Lihat Detail Pengawasan ">
+                                <span class="text font-weight-bold"> Lihat Data</span>
+                            </a>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="card-footer">
+            <?php include 'grafikpengawasantallysheet.php'; ?>
         </div>
     </div>
 

@@ -1,154 +1,173 @@
 <!-- Begin Page Content -->
+<?php
+if (empty($lokasi['id_kab'])) {
+    redirect('input/view');
+}
+?>
 <div class="container-fluid">
     <!-- Page Heading -->
-    <?php
-    if (empty($details['nm_kabupaten'])) {
-        redirect('input/view');
-    }
-    $aprvBibit = "bibit";
-    ?>
     <div class="row">
         <div class="col-sm-10">
-            <h1 class="h3 mb-4 text-gray-800 font-weight-bold"><a href="<?= base_url('input/view'); ?>"><?= $title; ?></a> <small class="text-info">/Detail Bibit (Tahap II)</small></h1>
+            <h1 class="h3 mb-4 text-gray-800 font-weight-bold"><a href="<?= base_url('input/view'); ?>"><?= $title; ?></a> <small class="text-info">/Detail Pengawasan Harian Bibit (Tahap I)</small></h1>
         </div>
         <div class="col-sm-2 text-right">
             <a href="<?= base_url('input/view'); ?> " class="btn btn-sm btn-info" title="kembali ke halaman pengawasan harian"><i class="fas fa-fw fa-chevron-circle-left fa-sm"></i> kembali</a>
         </div>
     </div>
+    <?= $this->session->flashdata('message'); ?>
     <div class="card shadow mb-4">
         <a href="#collapseSpkbibit" title="Klik untuk memperkecil dan memperbesar" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseSpkbibit">
-            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-fw fa-list"></i> Detail Pengawasan Harian Bibit</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-fw fa-list"></i> Detail Pengawasan Harian Bibit (Tahap I)</h6>
         </a>
         <div class="collapse show" id="collapseSpkbibit">
             <div class="card-body" id="reportHarian">
-                <div class="row">
-                    <div class="row m-3">
-                        <div class="col-sm-6">
-                            <img class="img" src="<?= base_url('assets/'); ?>img/logo-si.png" alt="" width="50%">
-                        </div>
-                        <div class="col-sm-6 text-right">
-                            <img class="img" src="<?= base_url('assets/'); ?>img/logo-vale.png" alt="" width="20%">
-                        </div>
+                <div class="row m-3">
+                    <div class="col-sm-6">
+                        <img class="img" src="<?= base_url('assets/'); ?>img/logo-si.png" alt="" width="50%">
                     </div>
+                    <div class="col-sm-6 text-right">
+                        <img class="img" src="<?= base_url('assets/'); ?>img/logo-vale.png" alt="" width="20%">
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-lg-12 text-center mb-4 font-weight-bold">
-                        <h5 class="font-weight-bold">HASIL PENGAWASAN DAN PENILAIAN HARIAN</h5>
-                        <h5 class="font-weight-bold">PEMBUATAN TANAMAN (P0) REHABILITASI DAS PT VALE INDONESIA,TBK</h5>
+                        <br>
+                        <h2 class="font-weight-bold">TALLY SHEET PERSEMAIAN</h2>
                         <hr>
                     </div>
-                    <div class="col-lg-6 text-uppercase font-weight-bold">
-                        <table class="table table-sm table-borderless">
+                    <div class="col-lg-12 text-uppercase font-weight-bold mb-3 ml-3">
+                        <table class="table-sm table-borderless" width="45%" align="left">
+                            <tr>
+                                <td>Propinsi</td>
+                                <td>:</td>
+                                <td>Sulawesi Selatan</td>
+                            </tr>
                             <tr>
                                 <td>Kabupaten</td>
                                 <td>:</td>
-                                <td><?= $details['nm_kabupaten']; ?></td>
+                                <td><?= $lokasi['nm_kabupaten']; ?></td>
                             </tr>
                             <tr>
                                 <td>Kecamatan</td>
                                 <td>:</td>
-                                <td><?= $details['nm_kecamatan']; ?></td>
+                                <td>
+                                    <?php
+                                    if (!empty($lokasi['id_kec'])) {
+                                        echo $this->db->get_where('dt_kecamatan', ['id_kecamatan' => $lokasi['id_kec']])->row_array()['nm_kecamatan'];
+                                    }
+                                    ?>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Desa</td>
                                 <td>:</td>
-                                <td><?= $details['nm_desa']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Pelaksana</td>
-                                <td>:</td>
-                                <td>PTSI</td>
+                                <td>
+                                </td>
                             </tr>
                         </table>
-                    </div>
-                    <div class="col-lg-6 text-uppercase font-weight-bold">
-                        <table class="table table-sm table-borderless">
+                        <table class="table-sm table-borderless" width="45%" align="left">
                             <tr>
-                                <td>Nama Petugas</td>
+                                <td>Petak/Lokasi</td>
                                 <td>:</td>
-                                <td><?= $details['petugas_lap']; ?></td>
+                                <td></td>
                             </tr>
                             <tr>
-                                <td>Blok</td>
+                                <td>Das/Sub DAS</td>
                                 <td>:</td>
-                                <td><?= $details['nm_blok']; ?></td>
+                                <td></td>
                             </tr>
                             <tr>
-                                <td>Petak</td>
+                                <td>Koordinat</td>
                                 <td>:</td>
-                                <td><?= $details['nm_petak']; ?></td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td>Luas</td>
                                 <td>:</td>
                                 <td><?php
-                                    $totalluasharian = $this->det->getDataPengawasanTotLuasBibit($details['id_petak'], $details['id_user']);
+                                    $totalluasharian = $this->report->getPengawasanTotLuasTallysheetPl($lokasi['id_kab'], $lokasi['id_user']);
                                     ?>
-                                    <?= $totalluasharian['totluas']; ?> Ha
+                                    <?= $totalluasharian['nilaibibit']; ?> Ha
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Jumlah Bibit</td>
+                                <td>:</td>
+                                <td><?php
+                                    $totalbibit = $this->report->getJumBibitTallysheetPl($lokasi['id_kab'], $lokasi['id_user']);
+                                    $total = $totalbibit['pertama'] + $totalbibit['kedua'] + $totalbibit['ketiga'];
+                                    ?>
+                                    <?= number_format($total, 0, ',', '.'); ?> Batang
+                                </td>
                             </tr>
                         </table>
-                    </div>
-                    <div class="col-lg-12 text-1x"><small>
+                    </div><br>
+                    <div class="col-lg-12 text-1x">
+                        <small>
                             <table class="table table-bordered table-hover table-sm">
                                 <thead>
                                     <tr class="text-center text-uppercase">
-                                        <th>No</th>
-                                        <th>Jenis Kegiatan</th>
-                                        <th>Satuan</th>
-                                        <th>Progress</th>
-                                        <th>Kendala/Rekomendasi</th>
-                                        <th>#</th>
+                                        <th rowspan="2">No</th>
+                                        <th rowspan="2">Jenis Bibit</th>
+                                        <th colspan="3">Kondisi Tinggi Bibit</th>
+                                        <th rowspan="2">Keterangan</th>
+                                        <th rowspan="2">#</th>
+                                    </tr>
+                                    <tr class="text-center text-uppercase">
+                                        <th>1 - 5 Cm</th>
+                                        <th>6 - 10 Cm</th>
+                                        <th>10 Cm Up</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php
+                                    $aprvBibit = "bibitpertama";
                                     $no = 1;
-                                    $datanx = $this->det->getDataPengawasanBibit($details['id_petak']);
-                                    foreach ($datanx as $dat) {
-                                        $bibitnya = $this->det->getDataPengawasanBibitnya($dat['id_spkbibit']);
-                                        $nilaibibitnya = $this->det->getRealisasiBibitnya($dat['id_spkbibit']);
+                                    $bibit = $this->report->getkabTallysheetBibit($lokasi['id_kab'],  $lokasi['id_user']);
+                                    foreach ($bibit as $value) {
+                                        $nilai = $this->report->getBibitProgresTallysheetPl($lokasi['id_kab'], $value['id_bibit'], $lokasi['id_user']);
+                                        $sql = $this->db->get_where('harianbibit_i', ['id_bibit' => $value['id_bibit'], 'id_kab' => $lokasi['id_kab'], 'id_user' => $lokasi['id_user']])->result_array();
                                     ?>
-                                        <tr class="font-weight-bold">
-                                            <td class="text-center"><?= $no++; ?></td>
-                                            <td><?= $dat['kategori']; ?></td>
-                                            <td></td>
-                                            <td class="text-center"><b class="<?= ($nilaibibitnya['nilaibibit'] < $dat['nilai_spkbibit']) ? "text-danger" : ""; ?> <?= ($nilaibibitnya['nilaibibit'] > $dat['nilai_spkbibit']) ? "text-warning" : "text-success"; ?>"><?= number_format($nilaibibitnya['nilaibibit'], 0, ',', '.'); ?></b> dari <b class="text-success"><?= number_format($dat['nilai_spkbibit'], 0, ',', '.'); ?></b></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <?php
-                                        foreach ($bibitnya as $bibit) {
-                                            $totalnilaiharian = $this->det->getDataPengawasanTotNilaiBibit($bibit['id_bibit'], $details['id_petak']);
-                                            $sql = $this->db->get_where('harianbibit', ['id_bibit' => $bibit['id_bibit'], 'id_petak' => $details['id_petak'], 'id_user' => $details['id_user'],])->result_array();
-                                        ?>
-                                            <tr>
-                                                <td></td>
-                                                <td> &nbsp; &nbsp; - <?= $bibit['nm_bibit']; ?></td>
-                                                <td class="text-center"><?= $bibit['satuan']; ?></td>
-                                                <td class="text-center <?= ($nilaibibitnya['nilaibibit'] < $dat['nilai_spkbibit']) ? "text-danger" : ""; ?> <?= ($nilaibibitnya['nilaibibit'] > $dat['nilai_spkbibit']) ? "text-warning" : "text-success"; ?>" data-toggle="tooltip" data-placement="left" title="<?= number_format($nilaibibitnya['nilaibibit'], 0, ',', '.'); ?> dari <?= number_format($dat['nilai_spkbibit'], 0, ',', '.'); ?>"><?= number_format($totalnilaiharian['totnilai'], 0, ',', '.'); ?></td>
-                                                <td><?php
-                                                    foreach ($sql as $ket) {
-                                                        echo $ket['keterangan'] . ". ";
-                                                    } ?>
-                                                </td>
-                                                <td class="text-center">
-                                                    <small><a href="" class="badge badge-info p-2" data-toggle="modal" data-target="#Details<?= $bibit['id_bibit']; ?>" title="Detail"><i class="fas fa-fw fa-info fa-1x"></i></a></small>
-                                                    <!-- Modal Detail Pengawasan bibit-->
-                                                    <div class="modal fade" id="Details<?= $bibit['id_bibit']; ?>" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="newRoleLabel" aria-hidden="true">
-                                                        <div class="modal-dialog modal-xl" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="newRoleLabel">Detail <b><?= $bibit['nm_bibit']; ?></b></h5>
-                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body scrol">
-                                                                    <table class="table table-sm">
+                                        <tr>
+                                            <td class="text-center"><?= $no++ ?></td>
+                                            <td><?= $value['nm_bibit']; ?></td>
+                                            <td class="text-center"><?= number_format($nilai['pertama'], 0, ',', '.'); ?></td>
+                                            <td class="text-center"><?= number_format($nilai['kedua'], 0, ',', '.'); ?></td>
+                                            <td class="text-center"><?= number_format($nilai['ketiga'], 0, ',', '.'); ?></td>
+                                            <td>
+                                                <?php
+                                                foreach ($sql as $valueket) {
+                                                    echo $valueket['keterangan'] . ". ";
+                                                }
+                                                ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <small>
+                                                    <a href="" class="badge badge-info p-2" data-toggle="modal" data-target="#Details<?= $value['id_bibit']; ?>" title="Detail"><i class="fas fa-fw fa-info fa-1x"></i></a>
+                                                </small>
+                                                <!-- Modal -->
+                                                <div class="modal fade text-left" id="Details<?= $value['id_bibit']; ?>" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="newRoleLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="newRoleLabel">Detail Tally Sheet <b><?= $value['nm_bibit']; ?></b></h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body scrol">
+                                                                <div class="col-sm-12 m-0 p-0" style="min-width: 999px;">
+                                                                    <table class="table-sm table-striped table-hover" width="100%">
                                                                         <tr class="text-center">
                                                                             <th>*</th>
-                                                                            <th>Tgl Pengawasan/Input</th>
+                                                                            <th>Tgl Input/Pengawasan</th>
+                                                                            <th>UserID</th>
                                                                             <th>Petugas</th>
                                                                             <th>Koordinat</th>
-                                                                            <th>Progress</th>
+                                                                            <th>Bibit</th>
+                                                                            <th>1-5 Cm</th>
+                                                                            <th>6-10 Cm</th>
+                                                                            <th>10 Cm Up</th>
                                                                             <th>Luas</th>
                                                                             <th>Keterangan</th>
                                                                             <th>Foto</th>
@@ -156,20 +175,26 @@
                                                                         </tr>
                                                                         <?php
                                                                         $ni = 1;
-                                                                        foreach ($sql as $val) { ?>
+                                                                        foreach ($sql as $val) {
+                                                                            $pl = $this->db->get_where('dt_user', ['id_user' => $val['id_user']])->row_array();
+                                                                        ?>
                                                                             <tr>
                                                                                 <td><?= $ni++; ?></td>
-                                                                                <td><?= $val['tgl'] . "<br>" . date('m d Y', $val['tgl_create']); ?></td>
+                                                                                <td class="text-center"><?= date('Y-m-d', $val['tgl_create']) . "<br>" . $val['tgl']; ?></td>
+                                                                                <td><?= $pl['nm_user']; ?></td>
                                                                                 <td><?= $val['petugas_lap']; ?></td>
                                                                                 <td><?= $val['koordinat']; ?></td>
-                                                                                <td><?= $val['nilai_harianbibit']; ?></td>
-                                                                                <td><?= $val['luas']; ?></td>
+                                                                                <td><?= $value['nm_bibit']; ?></td>
+                                                                                <td class="text-center"><?= number_format($val['nilai_pertama'], 0, ',', '.'); ?></td>
+                                                                                <td class="text-center"><?= number_format($val['nilai_kedua'], 0, ',', '.'); ?></td>
+                                                                                <td class="text-center"><?= number_format($val['nilai_ketiga'], 0, ',', '.'); ?></td>
+                                                                                <td class="text-center"><?= number_format($val['luas'], 0, ',', '.'); ?> Ha</td>
                                                                                 <td class="text-left"><?= $val['keterangan']; ?></td>
                                                                                 <td>
                                                                                     <center data-toggle="tooltip" data-placement="left" title="Klik untuk memperbesar.">
                                                                                         <?php
-                                                                                        if (file_exists("assets/img/peng-bibit/" . $val['foto'])) { ?>
-                                                                                            <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoView<?= $val['id_harianbibit'] ?>" style="cursor:zoom-in">
+                                                                                        if (file_exists("assets/img/peng-bibit-pertama/" . $val['foto'])) { ?>
+                                                                                            <button type="button" class="btn btn-info " data-toggle="modal" data-target="#fotoViewibit<?= $val['id_harianbibit_i'] ?>" style="cursor:zoom-in">
                                                                                                 <i class="fas fa-seedling fa-fa-3x"></i>
                                                                                             </button>
                                                                                         <?php
@@ -182,15 +207,15 @@
                                                                                         ?>
                                                                                     </center>
                                                                                     <!-- Modal Foto View -->
-                                                                                    <div class="modal fade" id="fotoView<?= $val['id_harianbibit'] ?>" tabindex="-1" aria-labelledby="fotoView<?= $val['id_harianbibit'] ?>Label" aria-hidden="true">
+                                                                                    <div class="modal fade" id="fotoViewibit<?= $val['id_harianbibit_i'] ?>" tabindex="-1" aria-labelledby="fotoViewibit<?= $val['id_harianbibit_i'] ?>Label" aria-hidden="true">
                                                                                         <div class="modal-dialog modal-xl" style="width: 100%;">
                                                                                             <div class="modal-content">
                                                                                                 <div class="modal-body modal-open text-center m-0 p-0" style="background-color: transparent;">
                                                                                                     <?php
-                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto']);
+                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit-pertama/" . $val['foto']);
                                                                                                     $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                     ?>
-                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
+                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit-pertama/<?= $val['foto']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                     <h3 class="badge-dark badge-lg m-0"><?= $val['foto']; ?></h3>
                                                                                                     <?php
                                                                                                     if (!empty($BahanUrlMap)) {
@@ -201,10 +226,10 @@
                                                                                                     <?php } ?>
                                                                                                     <hr>
                                                                                                     <?php
-                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_2']);
+                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit-pertama/" . $val['foto_2']);
                                                                                                     $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                     ?>
-                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto_2']; ?>"></a>
+                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit-pertama/<?= $val['foto_2']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                     <h3 class="badge-dark badge-lg m-0"><?= $val['foto_2']; ?></h3>
                                                                                                     <?php
                                                                                                     if (!empty($BahanUrlMap)) {
@@ -215,10 +240,10 @@
                                                                                                     <?php } ?>
                                                                                                     <hr>
                                                                                                     <?php
-                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_3']);
+                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit-pertama/" . $val['foto_3']);
                                                                                                     $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                     ?>
-                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto_3']; ?>"></a>
+                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit-pertama/<?= $val['foto_3']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                     <h3 class="badge-dark badge-lg m-0"><?= $val['foto_3']; ?></h3>
                                                                                                     <?php
                                                                                                     if (!empty($BahanUrlMap)) {
@@ -229,10 +254,10 @@
                                                                                                     <?php } ?>
                                                                                                     <hr>
                                                                                                     <?php
-                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_4']);
+                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit-pertama/" . $val['foto_4']);
                                                                                                     $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                     ?>
-                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto_4']; ?>"></a>
+                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit-pertama/<?= $val['foto_4']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                     <h3 class="badge-dark badge-lg m-0"><?= $val['foto_4']; ?></h3>
                                                                                                     <?php
                                                                                                     if (!empty($BahanUrlMap)) {
@@ -243,10 +268,10 @@
                                                                                                     <?php } ?>
                                                                                                     <hr>
                                                                                                     <?php
-                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit/" . $val['foto_5']);
+                                                                                                    $BahanimageURL = base_url("assets/img/peng-bibit-pertama/" . $val['foto_5']);
                                                                                                     $BahanUrlMap = get_image_location($BahanimageURL);
                                                                                                     ?>
-                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto_5']; ?>"></a>
+                                                                                                    <a href="<?= $BahanimageURL; ?>" target="_blank"><img class="img" src="<?= base_url('assets/'); ?>img/peng-bibit-pertama/<?= $val['foto_5']; ?>" alt="" width="100%" title="<?= $val['foto']; ?>"></a>
                                                                                                     <h3 class="badge-dark badge-lg m-0"><?= $val['foto_5']; ?></h3>
                                                                                                     <?php
                                                                                                     if (!empty($BahanUrlMap)) {
@@ -265,7 +290,7 @@
                                                                                     $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
                                                                                     if ($val['status'] == 1) {
                                                                                     ?>
-                                                                                        <div class="btn btn-success btn-icon-split">
+                                                                                        <div class="btn btn-success btn-icon-split mt-2">
                                                                                             <span class="icon text-white-50">
                                                                                                 <i class="fas fa-check"></i>
                                                                                             </span>
@@ -274,7 +299,7 @@
                                                                                     <?php
                                                                                     } else if ($val['status'] == 2) {
                                                                                     ?>
-                                                                                        <div class="btn btn-warning btn-icon-split">
+                                                                                        <div class="btn btn-warning btn-icon-split mt-2">
                                                                                             <span class="icon text-white-50">
                                                                                                 &times;
                                                                                             </span>
@@ -283,17 +308,17 @@
                                                                                     <?php
                                                                                     } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
                                                                                     ?>
-                                                                                        <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('input/approve/') . $aprvBibit . "/" . $val['id_harianbibit'] . "/" . $urlx; ?>">
+                                                                                        <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('input/approve/') . $aprvBibit . "/" . $val['id_harianbibit_i'] . "/" . $lokasi['id_kab']; ?>">
                                                                                             Approve
                                                                                         </a>
                                                                                         <hr class="m-1">
-                                                                                        <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('input/reject/') . $aprvBibit . "/" . $val['id_harianbibit'] . "/"  . $urlx; ?>">
+                                                                                        <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('input/reject/') . $aprvBibit . "/" . $val['id_harianbibit_i'] . "/"  . $lokasi['id_kab']; ?>">
                                                                                             Reject
                                                                                         </a>
                                                                                     <?php
                                                                                     } else {
                                                                                     ?>
-                                                                                        <div class="btn btn-danger btn-icon-split" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
+                                                                                        <div class="btn btn-danger btn-icon-split mt-2" data-toggle="tooltip" data-placement="right" title="Menunggu Approval/Persetujuan">
                                                                                             <span class="icon text-white-50">
                                                                                                 <i class="fas fa-sync"></i>
                                                                                             </span>
@@ -311,10 +336,10 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </tr>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     <?php
-                                        }
                                     }
                                     ?>
                                 </tbody>
@@ -324,13 +349,6 @@
                 </div>
             </div>
             <div class="card-footer">
-                <h5 class="font-weight-bold">KENDALA ATAU REKOMENDASI :</h5>
-                <hr class="m-0 pb-2">
-                <p>
-                    <span class="text-danger">* Realisasi progress pengawasan <b>belum terpenuhi</b> dari SPK yang telah ditentukan.</span><br>
-                    <span class="text-success">* Realisasi progress pengawasan <b>telah terpenuhi</b> dari SPK yang telah ditentukan.</span><br>
-                    <span class="text-warning">* Realisasi progress pengawasan <b>melebihi</b> dari SPK yang telah ditentukan.</span>
-                </p>
                 <button class="btn btn-sm btn-warning" onclick="printContent('reportHarian')"><i class="fas fa-print"></i> Print this Tally Sheet</button>
             </div>
         </div>
@@ -341,6 +359,7 @@
 
 </div>
 <!-- End of Main Content -->
+
 <?php
 function get_image_location($image = '')
 {
