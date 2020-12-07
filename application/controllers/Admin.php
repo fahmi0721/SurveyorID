@@ -179,7 +179,11 @@ class Admin extends CI_Controller
 
         $data['role'] = $this->db->get_where('user_role', ['id' => $role_id])->row_array();
         // Query Semua data menu yang ada di tabel menu kecuali admin
-        $this->db->where('id !=', 1);
+     
+        if ($role_id == 1) {
+            $this->db->where('id !=', 1);
+        }
+		
         $data['menu'] = $this->db->get('user_menu')->result_array();
 
         $this->load->view('templates/header', $data);
