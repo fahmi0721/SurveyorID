@@ -1,4 +1,10 @@
 <!-- Begin Page Content -->
+<?php
+if (empty($urlx)) {
+    redirect('report');
+}
+$aprvBibitI = "bibit_I";
+?>
 <div class="container-fluid">
     <!-- Page Heading -->
     <h1 class="h3 mb-4 text-gray-800 font-weight-bold"><a href="<?= base_url('report'); ?>"><?= $title; ?></a></h1>
@@ -27,7 +33,7 @@
         </div>
     </div>
     <hr>
-
+    <?= $this->session->flashdata('message'); ?>
     <div class="card shadow mb-4">
         <a href="#reportHarian" title="Klik untuk memperkecil dan memperbesar" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="reportHarian">
             <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-fw fa-list"></i> Detail Pengawasan Harian Tally Sheet Bibit (Tahap I) | Kab. <?= $lokasi['nm_kabupaten']; ?> </h6>
@@ -301,6 +307,7 @@
                                                                                         </td>
                                                                                         <td class="text-center">
                                                                                             <?php
+                                                                                            $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
                                                                                             if ($val['status'] == 1) {
                                                                                             ?>
                                                                                                 <div class="btn btn-success btn-icon-split mt-2">
@@ -318,6 +325,16 @@
                                                                                                     </span>
                                                                                                     <span class="text"> Rejected</span>
                                                                                                 </div>
+                                                                                            <?php
+                                                                                            } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                            ?>
+                                                                                                <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvBibitI . "/" . $val['id_harianbibit_i'] . "/" . $urlx; ?>">
+                                                                                                    Approve
+                                                                                                </a>
+                                                                                                <hr class="m-1">
+                                                                                                <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvBibitI . "/" . $val['id_harianbibit_i'] . "/"  . $urlx; ?>">
+                                                                                                    Reject
+                                                                                                </a>
                                                                                             <?php
                                                                                             } else {
                                                                                             ?>
@@ -611,6 +628,7 @@
                                                                                         </td>
                                                                                         <td class="text-center">
                                                                                             <?php
+                                                                                            $usersupadmin = $this->db->get_where('user_role', ['id' => $user['role_id']])->row_array();
                                                                                             if ($val['status'] == 1) {
                                                                                             ?>
                                                                                                 <div class="btn btn-success btn-icon-split mt-2">
@@ -628,6 +646,16 @@
                                                                                                     </span>
                                                                                                     <span class="text"> Rejected</span>
                                                                                                 </div>
+                                                                                            <?php
+                                                                                            } elseif ($usersupadmin['id'] == '1' || $usersupadmin['id'] == '9' || $usersupadmin['id'] == '10') {
+                                                                                            ?>
+                                                                                                <a class="btn btn-sm btn-info font-weight-bold" onclick="return confirm('Proses Approval pengawasan?')" href="<?= base_url('report/approve/') . $aprvBibitI . "/" . $val['id_harianbibit_i'] . "/" . $urlx; ?>">
+                                                                                                    Approve
+                                                                                                </a>
+                                                                                                <hr class="m-1">
+                                                                                                <a class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Yakin akan me Reject Pengawasan ini? Reject akan menghapus dari daftar pengawasan harian.')" href="<?= base_url('report/reject/') . $aprvBibitI . "/" . $val['id_harianbibit_i'] . "/"  . $urlx; ?>">
+                                                                                                    Reject
+                                                                                                </a>
                                                                                             <?php
                                                                                             } else {
                                                                                             ?>

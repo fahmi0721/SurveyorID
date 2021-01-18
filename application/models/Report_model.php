@@ -847,4 +847,48 @@ class Report_model extends CI_Model
         $data['stokbibit'] = $this->db->query($bahan)->row_array();
         return $data;
     }
+
+    // sql laporan kemajuan mingguan
+    // public function LoadBahanHarianNow($IdSpk, $Tgl)
+    // {
+    //     $date = $Tgl;
+    //     $TglAkhir = date("Y-m-d", strtotime($date . "+7 day"));
+    //     $sql = "SELECT SUM(nilai_harianbahan) as tot FROM harianbahan WHERE id_spkbahan = '$IdSpk' AND (tgl BETWEEN  '$Tgl' AND '$TglAkhir')";
+    //     $r = $this->db->query($sql)->result_array();
+    //     $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
+    //     return $res;
+    // }
+
+    public function LoadBahanHarianLastBahan($IdSpk, $Tgl)
+    {
+        $ex = explode("-", $Tgl);
+        $tglAwal = $ex[0] . "-" . $ex[1] . "-01";
+        $TglAkhir = date("Y-m-d", strtotime($Tgl . "-1 day"));
+        // $TglAkhir = strtotime("-1 days", $tglAwal);
+
+        $sql = "SELECT SUM(nilai_harianbahan) as tot FROM harianbahan WHERE id_spkbahan = '$IdSpk' AND (tgl BETWEEN  '$tglAwal' AND '$TglAkhir')";
+        $r = $this->db->query($sql)->result_array();
+        $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
+        return $res;
+    }
+    public function LoadBahanHarianLastBibit($IdSpk, $Tgl, $Bibit)
+    {
+        $ex = explode("-", $Tgl);
+        $tglAwal = $ex[0] . "-" . $ex[1] . "-01";
+        $TglAkhir = date("Y-m-d", strtotime($Tgl . "-1 day"));
+        $sql = "SELECT SUM(nilai_harianbibit) as tot FROM harianbibit WHERE id_spkbibit = '$IdSpk' AND id_bibit = '$Bibit' AND (tgl BETWEEN  '$tglAwal' AND '$TglAkhir')";
+        $r = $this->db->query($sql)->result_array();
+        $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
+        return $res;
+    }
+    public function LoadLapanganHarianLast($IdSpk, $Tgl)
+    {
+        $ex = explode("-", $Tgl);
+        $tglAwal = $ex[0] . "-" . $ex[1] . "-01";
+        $TglAkhir = date("Y-m-d", strtotime($Tgl . "-1 day"));
+        $sql = "SELECT SUM(nilai_harianlapangan) as tot FROM harianlapangan WHERE id_spklapangan = '$IdSpk' AND (tgl BETWEEN  '$tglAwal' AND '$TglAkhir')";
+        $r = $this->db->query($sql)->result_array();
+        $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
+        return $res;
+    }
 }

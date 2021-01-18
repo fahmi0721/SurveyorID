@@ -212,6 +212,7 @@ class Report extends CI_Controller
     public function details($Id)
     {
         $IdRes = explode("-", $Id);
+        $data['urlx'] = $Id;
         $data['title'] = 'Report Mingguan';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
@@ -222,6 +223,25 @@ class Report extends CI_Controller
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('report/pengawasan', $data);
+        $this->load->view('templates/footer');
+    }
+    public function detailsExcel($Id)
+    {
+        header("Content-type: application/vnd-ms-excel");
+
+        // membuat nama file ekspor "export-to-excel.xls"
+        header("Content-Disposition: attachment; filename=export-to-excel.xls");
+        $IdRes = explode("-", $Id);
+        $data['title'] = 'Report Mingguan';
+        $data['user'] = $this->db->get_where('dt_user', ['email' =>
+        $this->session->userdata('email')])->row_array();
+        $data['lokasi'] = $this->report->LoadPetaks($IdRes);
+        $this->load->model('Report_model', 'report');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('report/excel', $data);
         $this->load->view('templates/footer');
     }
 
@@ -287,6 +307,8 @@ class Report extends CI_Controller
             $update = $this->db->update('harianbibit', ['status' => '1'], ['id_harianbibit' => $id]);
         } elseif ($aprvl == "lapangan") {
             $update = $this->db->update('harianlapangan', ['status' => '1'], ['id_harianlapangan' => $id]);
+        } elseif ($aprvl == "bibit_I") {
+            $update = $this->db->update('harianbibit_i', ['status' => '1'], ['id_harianbibit_i' => $id]);
         }
         if ($update) {
             // kirim Ke Log 
@@ -311,7 +333,11 @@ class Report extends CI_Controller
             <span aria-hidden="true">&times;</span></button> </div>'
             );
         }
-        redirect('report/harian/' . $url);
+        if ($aprvl == "bibit_I") {
+            redirect('report/tallysheet/' . $url);
+        } else {
+            redirect('report/harian/' . $url);
+        }
     }
 
     public function reject($aprvl, $id, $url)
@@ -349,6 +375,16 @@ class Report extends CI_Controller
                 unlink('assets/img/peng-video/' . $sql['video']);
             }
             $delete = $this->db->delete('harianlapangan', ['id_harianlapangan' => $id]);
+        } elseif ($aprvl == "bibit_I") {
+            $sql = $this->db->get_where('harianbibit_i', ['id_harianbibit_i' => $id])->row_array();
+            if (file_exists('assets/img/peng-bibit-pertama/' . $sql['foto']) || file_exists('assets/img/peng-bibit-pertama/' . $sql['foto_2']) || file_exists('assets/img/peng-bibit-pertama/' . $sql['foto_3']) || file_exists('assets/img/peng-bibit-pertama/' . $sql['foto_4']) || file_exists('assets/img/peng-bibit-pertama/' . $sql['foto_5'])) {
+                unlink('assets/img/peng-bibit-pertama/' . $sql['foto']);
+                unlink('assets/img/peng-bibit-pertama/' . $sql['foto_2']);
+                unlink('assets/img/peng-bibit-pertama/' . $sql['foto_3']);
+                unlink('assets/img/peng-bibit-pertama/' . $sql['foto_4']);
+                unlink('assets/img/peng-bibit-pertama/' . $sql['foto_5']);
+            }
+            $delete = $this->db->delete('harianbibit_i', ['id_harianbibit_i' => $id]);
         }
         if ($delete) {
             // kirim Ke Log 
@@ -373,7 +409,11 @@ class Report extends CI_Controller
             <span aria-hidden="true">&times;</span></button> </div>'
             );
         }
-        redirect('report/harian/' . $url);
+        if ($aprvl == "bibit_I") {
+            redirect('report/tallysheet/' . $url);
+        } else {
+            redirect('report/harian/' . $url);
+        }
     }
 
     public function coba()
