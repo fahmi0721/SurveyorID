@@ -67,7 +67,7 @@
             </a>
             <div class="collapse show" id="reportMingguan">
                 <div class="card-body">
-                    <div class="row m-4">
+                    <div class="row m-2">
                         <div class="col-sm-6">
                             <img class="img" src="<?= base_url('assets/'); ?>img/logo-si.png" alt="" width="50%">
                         </div>
@@ -76,7 +76,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-12 text-center mb-4 font-weight-bold">
+                        <div class="col-lg-12 text-center mb-1 font-weight-bold">
                             <h5 class="font-weight-bold">REKAPITULASI HASIL PENGAWASAN DAN PENILAIAN MINGGUAN</h5>
                             <h5 class="font-weight-bold">PEMBUATAN TANAMAN (P0) REHABILITASI DAS PT VALE INDONESIA,TBK</h5>
                             <hr>
@@ -106,14 +106,9 @@
                             </table>
                             <table class="table-sm table-borderless" width="45%" align="left">
                                 <tr>
-                                    <td>Blok</td>
+                                    <td>Blok / Petak</td>
                                     <td>:</td>
-                                    <td><?= $lokasi['nm_blok']; ?></td>
-                                </tr>
-                                <tr>
-                                    <td>Petak</td>
-                                    <td>:</td>
-                                    <td><?= $lokasi['nm_petak']; ?></td>
+                                    <td><?= $lokasi['nm_blok'] . " / " . $lokasi['nm_petak']; ?></td>
                                 </tr>
                                 <tr>
                                     <td>Luas</td>
@@ -137,7 +132,7 @@
                             </table>
                         </div>
                         <div class="col-lg-12 text-1x scrol">
-                            <small class="m-5">
+                            <small class="m-1">
                                 <table class="table-bordered table-hover table-sm" width="100%" style="min-width: 999px;">
                                     <thead>
                                         <tr class="text-uppercase text-center">
@@ -237,7 +232,7 @@
 
                                             <tr>
                                                 <th>II</th>
-                                                <th colspan="11">TENAGA KERJA / LAPANGAN</th>
+                                                <th colspan="11">KEGIATAN DI LAPANGAN</th>
                                             </tr>
                                             <?php
                                             $no = 1;
@@ -284,12 +279,10 @@
                     <button class="btn btn-sm btn-warning" onclick="printContent('reportMingguanKemajuan')"><i class="fas fa-print"></i> Print</button>
                 </div>
                 <div class="col-sm-1 text-left">
-                    <a href="report/detailsExcel" target="_blank" class="btn btn-sm btn-info"><i class="far fa-file-excel"></i> Export</a>
+                    <a href="<?= base_url('report/detailsExcel/') . $urlx . "/" . $tglmulai; ?>" target="_blank" class="btn btn-sm btn-info"><i class="far fa-file-excel"></i> Export</a>
                 </div>
             </div>
             <div class="card-body" id="reportMingguanKemajuan">
-                <?php
-                ?>
                 <div class="row m-4">
                     <div class="col-sm-6">
                         <img class="img" src="<?= base_url('assets/'); ?>img/logo-si.png" alt="" width="50%">
@@ -444,7 +437,7 @@
                                         <!-- tampilkan lapangan  -->
                                         <tr>
                                             <th>II</th>
-                                            <th colspan="11">TENAGA KERJA / LAPANGAN</th>
+                                            <th colspan="11">KEGIATAN DI LAPANGAN</th>
                                         </tr>
                                         <?php
                                         $no = 1;
