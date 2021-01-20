@@ -1,6 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+require('./excel/vendor/autoload.php');
 
+use PhpOffice\PhpSpreadsheet\Helper\Sample;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+
+$Spreadsheet = new Spreadsheet();
 class Report extends CI_Controller
 {
     // Cek Apakah ada user yang Login
@@ -225,24 +232,16 @@ class Report extends CI_Controller
         $this->load->view('report/pengawasan', $data);
         $this->load->view('templates/footer');
     }
-    public function detailsExcel($Id)
+    public function detailsExcel($Id, $tgl)
     {
-        header("Content-type: application/vnd-ms-excel");
-
-        // membuat nama file ekspor "export-to-excel.xls"
-        header("Content-Disposition: attachment; filename=export-to-excel.xls");
         $IdRes = explode("-", $Id);
+        $data['tglmulai'] = $tgl;
         $data['title'] = 'Report Mingguan';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
         $data['lokasi'] = $this->report->LoadPetaks($IdRes);
         $this->load->model('Report_model', 'report');
-
-        $this->load->view('templates/header', $data);
-        $this->load->view('templates/sidebar', $data);
-        $this->load->view('templates/topbar', $data);
         $this->load->view('report/excel', $data);
-        $this->load->view('templates/footer');
     }
 
     public function harian($Id)

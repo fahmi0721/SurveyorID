@@ -24,8 +24,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 |
 */
 // $config['base_url'] = 'http://192.168.22.190/projek/surveyorID-survei-v1.4';
-$config['base_url'] = 'http://localhost/projek/surveyor-v2/surveyorID/';
-// $config['base_url'] = 'http://rehabdas.ptsi.co.id/';
+// $config['base_url'] = 'http://localhost/projek/surveyor-v2/surveyorID/';
+$config['base_url'] = 'http://rehabdas.ptsi.co.id/';
 
 /*
 |--------------------------------------------------------------------------

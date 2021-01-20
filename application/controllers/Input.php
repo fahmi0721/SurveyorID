@@ -253,7 +253,8 @@ class Input extends CI_Controller
             'petugas_lap' => $this->input->post('petugas', true),
             'keterangan' => $this->input->post('ket', true),
             'id_user' => $this->input->post('id_user', true),
-            'tgl_create' => time()
+            'tgl_create' => time(),
+            'status' => 0
         ];
         $input = $this->db->insert('harianbibit_i', $data);
         if ($input) {
@@ -403,7 +404,8 @@ class Input extends CI_Controller
             'petugas_lap' => $this->input->post('petugas', true),
             'keterangan' => $this->input->post('ket', true),
             'id_user' => $this->input->post('id_user', true),
-            'tgl_create' => time()
+            'tgl_create' => time(),
+            'status' => 0
         ];
         $JumlahSpkBibit = $this->getJumlahSpkBibit($data['id_spkbibit']);
         $JumlahBibitYangRealisasi = $this->getRealisasiBibit($data['id_spkbibit']);
@@ -566,7 +568,8 @@ class Input extends CI_Controller
             'petugas_lap' => $this->input->post('petugas', true),
             'keterangan' => $this->input->post('ket', true),
             'id_user' => $this->input->post('id_user', true),
-            'tgl_create' => time()
+            'tgl_create' => time(),
+            'status' => 0
         ];
 
         $JumlahSpkBahan = $this->getJumlahSpkBahan($data['id_spkbahan']);
@@ -776,7 +779,8 @@ class Input extends CI_Controller
             'petugas_lap' => $this->input->post('petugas', true),
             'keterangan' => $this->input->post('ket', true),
             'id_user' => $this->input->post('id_user', true),
-            'tgl_create' => time()
+            'tgl_create' => time(),
+            'status' => 0
         ];
 
         $JumlahSpkLapangan = $this->getJumlahSpkLapangan($data['id_spklapangan']);
