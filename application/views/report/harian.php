@@ -124,6 +124,7 @@ $aprvLapangan = "lapangan";
                                             <th>No</th>
                                             <th>Jenis Kegiatan</th>
                                             <th>Satuan</th>
+                                            <th>Rencana</th>
                                             <th>Progress</th>
                                             <th>Kendala/Rekomendasi</th>
                                             <th colspan="2">#</th>
@@ -146,6 +147,7 @@ $aprvLapangan = "lapangan";
                                                 <td class="text-right"><?= $no++ ?></td>
                                                 <td><?= $value['nm_kegiatan']; ?></td>
                                                 <td class="text-center"><?= $value['satuan']; ?></td>
+                                                <td class="text-center"><?= $value['nilai_spkbahan']; ?></td>
                                                 <td class="text-center <?= ($nilai['totnilai'] > $value['nilai_spkbahan']) ? "text-warning" : ""; ?>  <?= ($nilai['totnilai'] < $value['nilai_spkbahan']) ? "text-danger" : "text-success"; ?>" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= number_format($nilai['totnilai'], 2, ',', '.'); ?> Dari <?= number_format($value['nilai_spkbahan'], 2, ',', '.'); ?>"><?= number_format($nilai['totnilai'], 2, ',', '.'); ?></td>
                                                 <td>
                                                     <?php
@@ -363,6 +365,7 @@ $aprvLapangan = "lapangan";
                                                 <td class="text-right"><?= $nom++; ?></td>
                                                 <td><?= $kat['kategori']; ?></td>
                                                 <td></td>
+                                                <td class="text-center"><?= $kat['nilai_spkbibit']; ?></td>
                                                 <td class="text-center"><b class="<?= ($realisasi['nilaibibit'] < $kat['nilai_spkbibit']) ? "text-danger" : ""; ?> <?= ($realisasi['nilaibibit'] > $kat['nilai_spkbibit']) ? "text-warning" : "text-success"; ?>"><?= number_format($realisasi['nilaibibit'], 0, ',', '.'); ?></b> dari <b class="text-success"><?= number_format($kat['nilai_spkbibit'], 0, ',', '.'); ?></b></td>
                                                 <td></td>
                                                 <td></td>
@@ -378,6 +381,7 @@ $aprvLapangan = "lapangan";
                                                     <td></td>
                                                     <td> - <?= $valueBibit['nm_bibit']; ?></td>
                                                     <td class="text-center"><?= $valueBibit['satuan']; ?></td>
+                                                    <td></td>
                                                     <td class="text-center <?= ($realisasi['nilaibibit'] < $kat['nilai_spkbibit']) ? "text-danger" : ""; ?> <?= ($realisasi['nilaibibit'] > $kat['nilai_spkbibit']) ? "text-warning" : "text-success"; ?>" data-toggle="tooltip" data-placement="left" title="<?= number_format($realisasi['nilaibibit'], 0, ',', '.'); ?> dari <?= number_format($kat['nilai_spkbibit'], 0, ',', '.'); ?>"><?= number_format($progresbibit['total'], 0, ',', '.'); ?></td>
                                                     <td>
                                                         <?php
@@ -596,6 +600,7 @@ $aprvLapangan = "lapangan";
                                                 <td class="text-right"><?= $nomr++; ?></td>
                                                 <td><?= $valueLap['nm_kegiatan']; ?></td>
                                                 <td class="text-center"><?= $valueLap['satuan']; ?></td>
+                                                <td class="text-center"><?= $valueLap['nilai_spklapangan']; ?></td>
                                                 <td class="text-center font-weight-bold <?= ($valueLap['nilai_spklapangan'] < $progreslapangan['totnilai']) ? "text-warning" : ""; ?> <?= ($valueLap['nilai_spklapangan'] > $progreslapangan['totnilai']) ? "text-danger" : "text-success"; ?>" data-toggle="tooltip" data-placement="top" title="<?= number_format($progreslapangan['totnilai'], 2, '.', ','); ?> dari <?= number_format($valueLap['nilai_spklapangan'], 2, '.', ','); ?>"><?= number_format($progreslapangan['totnilai'], 2, '.', ','); ?></td>
                                                 <td>
                                                     <?php
@@ -910,6 +915,7 @@ $aprvLapangan = "lapangan";
                                                 <th>No</th>
                                                 <th>Jenis Kegiatan</th>
                                                 <th>Satuan</th>
+                                                <th>Rencana</th>
                                                 <th>Progress</th>
                                                 <th>Kendala/Rekomendasi</th>
                                                 <th>#</th>
@@ -932,6 +938,7 @@ $aprvLapangan = "lapangan";
                                                     <td class="text-right"><?= $no++ ?></td>
                                                     <td><?= $value['nm_kegiatan']; ?></td>
                                                     <td class="text-center"><?= $value['satuan']; ?></td>
+                                                    <td class="text-center"><?= number_format($value['nilai_spkbahan'], 2, ',', '.'); ?></td>
                                                     <td class="text-center font-weight-bold <?= ($nilai['totnilai'] > $value['nilai_spkbahan']) ? "text-warning" : ""; ?>  <?= ($nilai['totnilai'] < $value['nilai_spkbahan']) ? "text-danger" : "text-success"; ?>" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= number_format($nilai['totnilai'], 2, ',', '.'); ?> Dari <?= number_format($value['nilai_spkbahan'], 2, ',', '.'); ?>"><?= number_format($nilai['totnilai'], 2, ',', '.'); ?></td>
                                                     <td>
                                                         <?php
@@ -1153,6 +1160,7 @@ $aprvLapangan = "lapangan";
                                                     <td class="text-right"><?= $nom++; ?></td>
                                                     <td><?= $kat['kategori']; ?></td>
                                                     <td></td>
+                                                    <td class="text-center"><?= number_format($kat['nilai_spkbibit'], 2, ',', '.'); ?></td>
                                                     <td class="text-center"><b class="<?= ($realisasi['nilaibibit'] < $kat['nilai_spkbibit']) ? "text-danger" : ""; ?> <?= ($realisasi['nilaibibit'] > $kat['nilai_spkbibit']) ? "text-warning" : "text-success"; ?>"><?= number_format($realisasi['nilaibibit'], 0, ',', '.'); ?></b> dari <b class="text-success"><?= number_format($kat['nilai_spkbibit'], 0, ',', '.'); ?></b></td>
                                                     <td></td>
                                                     <td></td>
@@ -1168,6 +1176,7 @@ $aprvLapangan = "lapangan";
                                                         <td></td>
                                                         <td> - <?= $valueBibit['nm_bibit']; ?></td>
                                                         <td class="text-center"><?= $valueBibit['satuan']; ?></td>
+                                                        <td></td>
                                                         <td class="text-center font-weight-bold <?= ($realisasi['nilaibibit'] < $kat['nilai_spkbibit']) ? "text-danger" : ""; ?> <?= ($realisasi['nilaibibit'] > $kat['nilai_spkbibit']) ? "text-warning" : "text-success"; ?>" data-toggle="tooltip" data-placement="left" title="<?= number_format($realisasi['nilaibibit'], 0, ',', '.'); ?> dari <?= number_format($kat['nilai_spkbibit'], 0, ',', '.'); ?>"><?= number_format($progresbibit['total'], 0, ',', '.'); ?></td>
                                                         <td>
                                                             <?php
@@ -1392,6 +1401,7 @@ $aprvLapangan = "lapangan";
                                                     <td class="text-right"><?= $nomr++; ?></td>
                                                     <td><?= $valueLap['nm_kegiatan']; ?></td>
                                                     <td class="text-center"><?= $valueLap['satuan']; ?></td>
+                                                    <td class="text-center"><?= number_format($valueLap['nilai_spklapangan'], 2, ',', '.'); ?></td>
                                                     <td class="text-center font-weight-bold <?= ($valueLap['nilai_spklapangan'] < $progreslapangan['totnilai']) ? "text-warning" : ""; ?> <?= ($valueLap['nilai_spklapangan'] > $progreslapangan['totnilai']) ? "text-danger" : "text-success"; ?>" data-toggle="tooltip" data-placement="top" title="<?= number_format($progreslapangan['totnilai'], 2, '.', ','); ?> dari <?= number_format($valueLap['nilai_spklapangan'], 2, '.', ','); ?>"><?= number_format($progreslapangan['totnilai'], 2, '.', ','); ?></td>
                                                     <td>
                                                         <?php
@@ -1636,7 +1646,10 @@ $aprvLapangan = "lapangan";
         </div>
     <?php
     }
+
+    include 'grafikharian.php'
     ?>
+
 </div>
 <!-- /.container-fluid -->
 

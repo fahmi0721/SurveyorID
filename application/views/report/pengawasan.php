@@ -65,17 +65,15 @@
             <a href="#reportMingguan" title="Klik untuk memperkecil dan memperbesar" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="reportMingguan">
                 <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-fw fa-list"></i> Detail Pengawasan Harian</h6>
             </a>
-            <div class="collapse show" id="reportMingguan">
-                <div class="card-body">
-                    <div class="row m-2">
+            <div class="collapse show">
+                <div class="card-body" id="reportMingguan">
+                    <div class="row">
                         <div class="col-sm-6">
                             <img class="img" src="<?= base_url('assets/'); ?>img/logo-si.png" alt="" width="50%">
                         </div>
                         <div class="col-sm-6 text-right">
                             <img class="img" src="<?= base_url('assets/'); ?>img/logo-vale.png" alt="" width="20%">
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-lg-12 text-center mb-1 font-weight-bold">
                             <h5 class="font-weight-bold">REKAPITULASI HASIL PENGAWASAN DAN PENILAIAN MINGGUAN</h5>
                             <h5 class="font-weight-bold">PEMBUATAN TANAMAN (P0) REHABILITASI DAS PT VALE INDONESIA,TBK</h5>
@@ -141,6 +139,7 @@
                                             <th rowspan="2">Satuan</th>
                                             <th colspan="7">Progress Harian</th>
                                             <th rowspan="2">Jumlah</th>
+                                            <th rowspan="2">Total/Rencana</th>
                                             <th rowspan="2">Ket</th>
                                         </tr>
                                         <tr class="text-center">
@@ -154,7 +153,6 @@
                                                 echo "<td>" . $TglShow . "</td>";
                                             }
                                             ?>
-
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -169,6 +167,7 @@
                                             $Totalbahan = 0;
                                             $kegiatanbahan = $this->report->LoadKegiatanBahan($lokasi['id_petak']);
                                             foreach ($kegiatanbahan as $key) {
+                                                $MguLalu = $this->report->LoadBahanHarianLastBahan($key['id_spkbahan'], $tglmulai);
                                             ?>
                                                 <tr>
                                                     <td class="text-right"><?= $no++ ?></td>
@@ -180,9 +179,12 @@
                                                         $Totalbahan = $Totalbahan + $this->report->LoadBahanHarian($key['id_spkbahan'], $tgl);
                                                     }
                                                     $SpkBahan = $this->report->getSpkBahan($key['id_spkbahan']);
-                                                    $Ket = $Totalbahan < $SpkBahan ? "PROSES" : "LENGKAP";
+                                                    $SdMingguIni = $MguLalu + $Totalbahan;
+                                                    $Ket = $SdMingguIni < $SpkBahan ? "PROSES" : "<b>LENGKAP</b>";
+                                                    // $Ket = $Totalbahan < $SpkBahan ? "PROSES" : "LENGKAP";
                                                     ?>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $Totalbahan ?> Dari <?= $SpkBahan; ?>"><?= $Totalbahan ?></td>
+                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $Totalbahan ?> Dari <?= $SpkBahan; ?>"><?= number_format($Totalbahan, 2, ',', '.'); ?></td>
+                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkBahan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') . " <b> | </b> " . number_format($key['nilai_spkbahan'], '2', ',', '.'); ?></td>
                                                     <td class="text-center"><?= $Ket ?></td>
                                                 </tr>
                                             <?php
@@ -202,6 +204,7 @@
                                             // print_r($kegiatanbibit);
                                             $ResalisasiBibir = $this->report->ReaisasiSphBibit();
                                             foreach ($kegiatanbibit as $keyb) {
+                                                $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $keyb['id_bibit']);
                                             ?>
                                                 <tr>
                                                     <td class="text-right"><?= $no++ ?></td>
@@ -213,16 +216,13 @@
                                                         $TotalBibit = $TotalBibit + $this->report->LoadBibitHarian($keyb['id_spkbibit'], $tgl, $keyb['id_bibit']);
                                                     }
                                                     $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
-                                                    if (array_key_exists($keyb['id_spkbibit'], $ResalisasiBibir)) {
-                                                        $Ket = $ResalisasiBibir[$keyb['id_spkbibit']] < $SpkBibit ? "PROSES" : "LENGKAP";
-                                                        $dari = $ResalisasiBibir[$keyb['id_spkbibit']];
-                                                    } else {
-                                                        $Ket = "PROSES";
-                                                        $dari = 0;
-                                                    }
+                                                    $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
+                                                    $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
+                                                    $ket = $SdMingguIniBib['tot'] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
                                                     ?>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $dari ?> Dari <?= $SpkBibit; ?>"><?= $TotalBibit ?></td>
-                                                    <td class="text-center"><?= $Ket ?></td>
+                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalBibit ?> Dari <?= $SpkBibit; ?>"><?= $TotalBibit ?></td>
+                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIniBib['tot'] ?> Dari <?= $SpkBibit; ?>"><?= number_format($SdMingguIniBibit, '2', '.', ',') . " <b> | </b>" . number_format($keyb['nilai_spkbibit'], 2, ',', '.'); ?></td>
+                                                    <td class="text-center"><?= $ket ?></td>
                                                 </tr>
                                             <?php
                                                 $TotalBibit = 0;
@@ -239,6 +239,7 @@
                                             $TotalLapangan = 0;
                                             $kegiatanlapangan = $this->report->LoadKegiatanLapangan($lokasi['id_petak']);;
                                             foreach ($kegiatanlapangan as $keyl) {
+                                                $MguLaluLapangan = $this->report->LoadLapanganHarianLast($keyl['id_spklapangan'], $tglmulai);
                                             ?>
                                                 <tr>
                                                     <td class="text-right"><?= $no++ ?></td>
@@ -250,9 +251,11 @@
                                                         $TotalLapangan = $TotalLapangan + $this->report->LoadLapanganHarian($keyl['id_spklapangan'], $tgl);
                                                     }
                                                     $SpkLapangan = $this->report->getSpkLapangan($keyl['id_spklapangan']);
-                                                    $Ket = $TotalLapangan < $SpkLapangan ? "PROSES" : "LENGKAP";
+                                                    $SdMingguIni = $MguLaluLapangan + $TotalLapangan;
+                                                    $Ket = $SdMingguIni < $SpkLapangan ? "PROSES" : "<b>LENGKAP</b>";
                                                     ?>
                                                     <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalLapangan ?> Dari <?= $SpkLapangan; ?>"><?= $TotalLapangan ?></td>
+                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkLapangan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') . " <b> | </b> " . $keyl['nilai_spklapangan']; ?></td>
                                                     <td class="text-center"><?= $Ket ?></td>
                                                 </tr>
                                             <?php
@@ -417,18 +420,13 @@
                                                 }
                                                 $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
                                                 $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
-                                                if (array_key_exists($keyb['id_spkbibit'], $ResalisasiBibir)) {
-                                                    $Ket = $ResalisasiBibir[$keyb['id_spkbibit']] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
-                                                    $dari = $ResalisasiBibir[$keyb['id_spkbibit']];
-                                                } else {
-                                                    $Ket = "PROSES";
-                                                    $dari = 0;
-                                                }
+                                                $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
+                                                $ket = $SdMingguIniBib['tot'] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
                                                 ?>
                                                 <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $MguLaluBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($MguLaluBibit, 2, '.', ','); ?></td>
                                                 <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($TotalBibit, '2', '.', ',') ?></td>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $dari ?> Dari <?= $SpkBibit; ?>"><?= number_format($SdMingguIniBibit, '2', '.', ',') ?></td>
-                                                <td class="text-center"><?= $Ket ?></td>
+                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIniBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($SdMingguIniBibit, '2', '.', ',') ?></td>
+                                                <td class="text-center"><?= $ket; ?></td>
                                             </tr>
                                         <?php
                                             $TotalBibit = 0;
@@ -484,6 +482,7 @@
                 <span aria-hidden="true">&times;</span></button>
         </div>
     <?php } ?>
+
 </div>
 <!-- /.container-fluid -->
 

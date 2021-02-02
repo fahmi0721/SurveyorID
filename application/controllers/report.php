@@ -157,13 +157,11 @@ class Report extends CI_Controller
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
         $data['kabupaten'] = $this->loadKabupaten();
-
         // query Grafik pengawasan 
         $this->load->model('Report_model', 'report');
         $data['tglbahan'] = $this->report->LoadBahan();
         $data['tglbibit'] = $this->report->LoadBibit();
         $data['tglap'] = $this->report->LoadLapangan();
-
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
@@ -203,6 +201,7 @@ class Report extends CI_Controller
     public function desa($Id)
     {
         $IdRes = explode("-", $Id);
+        $data['urlx'] = $Id;
         $data['title'] = 'Report Mingguan';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
@@ -214,6 +213,18 @@ class Report extends CI_Controller
         $this->load->view('templates/topbar', $data);
         $this->load->view('report/desa', $data);
         $this->load->view('templates/footer');
+    }
+    public function detailExcelBlok($Id, $tgl, $blok)
+    {
+        $IdRes = explode("-", $Id);
+        $data['tglmulai'] = $tgl;
+        $data['blok'] = $blok;
+        $data['title'] = 'Report Mingguan';
+        $data['user'] = $this->db->get_where('dt_user', ['email' =>
+        $this->session->userdata('email')])->row_array();
+        $data['kabupaten'] = $this->loadBlok($IdRes);
+        $this->load->model('Report_model', 'report');
+        $this->load->view('report/excelBlok', $data);
     }
 
     public function details($Id)

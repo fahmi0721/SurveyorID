@@ -31,6 +31,9 @@
     <link href="<?= base_url('assets/'); ?>vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="<?= base_url('assets/'); ?>vendor/jquery/jquery.min.js"></script>
     <script src="<?= base_url('assets/'); ?>vendor/chart.js/Chart.min.js"></script>
+    <script src="<?= base_url('assets/'); ?>vendor/chart.js/Chart.PieceLabel.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+    <script src="https://cdn.jsdelivr.net/angular.chartjs/latest/angular-chart.js"></script> -->
     <style>
         .scrol {
             clear: both;
@@ -39,6 +42,15 @@
             float: left;
             width: 100%;
             content: inherit;
+        }
+
+        .scrolBar {
+            clear: both;
+            border: 0px solid 3FF6600;
+            max-width: 100%;
+            min-width: 70%;
+            overflow: auto;
+            float: left;
         }
 
         .texthoverwhite {

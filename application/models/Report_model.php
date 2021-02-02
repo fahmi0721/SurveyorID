@@ -629,7 +629,7 @@ class Report_model extends CI_Model
     public function LoadPetak($IdKab, $IdKec, $IdDes, $IdBlok)
     {
         $res = array();
-        foreach ($this->LoadPetakx($IdBlok) as $key => $r) {
+        foreach ($this->LoadPetakx($IdBlok) as $r) {
             $cek = $this->getReportPetakCount($IdKab, $IdKec, $IdDes, $IdBlok, $r['id_petak']);
             $r['id_kabupaten'] = $IdKab;
             $r['id_kecamatan'] = $IdKec;
@@ -859,13 +859,12 @@ class Report_model extends CI_Model
     //     return $res;
     // }
 
+    // menghitung total relisasi dari tgl 1 sampai tgl -1 tgl minggu ini di laporan kemajuan
     public function LoadBahanHarianLastBahan($IdSpk, $Tgl)
     {
         $ex = explode("-", $Tgl);
         $tglAwal = $ex[0] . "-" . $ex[1] . "-01";
         $TglAkhir = date("Y-m-d", strtotime($Tgl . "-1 day"));
-        // $TglAkhir = strtotime("-1 days", $tglAwal);
-
         $sql = "SELECT SUM(nilai_harianbahan) as tot FROM harianbahan WHERE id_spkbahan = '$IdSpk' AND (tgl BETWEEN  '$tglAwal' AND '$TglAkhir')";
         $r = $this->db->query($sql)->result_array();
         $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
@@ -890,5 +889,194 @@ class Report_model extends CI_Model
         $r = $this->db->query($sql)->result_array();
         $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
         return $res;
+    }
+    // menghitung total relisasi dari tgl 1 sampai tgl -1 tgl minggu ini di laporan Mingguan
+    public function LoadmingguanLastBahan($IdSpk, $Tgl)
+    {
+        $ex = explode("-", $Tgl);
+        $tglAwal = $ex[0] . "-" . $ex[1] . "-01";
+        $TglAkhir = date("Y-m-d", strtotime($Tgl . "-1 day"));
+        $sql = "SELECT SUM(nilai_harianbahan) as tot FROM harianbahan WHERE id_spkbahan = '$IdSpk' AND (tgl BETWEEN  '$tglAwal' AND '$TglAkhir')";
+        $r = $this->db->query($sql)->result_array();
+        $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
+        return $res;
+    }
+
+    // Data Grafik Mingguan 
+    public function LoadSPK($idkab)
+    {
+        $sqlSpkBahan = "SELECT SUM(spkbahan.nilai_spkbahan) AS spkbahan FROM spkbahan, tb_petak, tb_blok, dt_desa, dt_kecamatan,dt_kabupaten 
+                        WHERE dt_kabupaten.id_kabupaten=dt_kecamatan.id_kabupaten 
+                        AND dt_kecamatan.id_kecamatan=dt_desa.id_kecamatan 
+                        AND dt_desa.id_desa=tb_blok.id_desa 
+                        AND tb_blok.id_blok=tb_petak.id_blok 
+                        AND tb_petak.id_petak=spkbahan.id_petak 
+                        AND dt_kabupaten.id_kabupaten='$idkab' ";
+        $bahan = $this->db->query($sqlSpkBahan)->row_array();
+        $sqlSpkBibit = "SELECT SUM(spkbibit.nilai_spkbibit) AS spkbibit FROM spkbibit, tb_petak, tb_blok, dt_desa, dt_kecamatan,dt_kabupaten 
+                        WHERE dt_kabupaten.id_kabupaten=dt_kecamatan.id_kabupaten 
+                        AND dt_kecamatan.id_kecamatan=dt_desa.id_kecamatan 
+                        AND dt_desa.id_desa=tb_blok.id_desa 
+                        AND tb_blok.id_blok=tb_petak.id_blok 
+                        AND tb_petak.id_petak=spkbibit.id_petak 
+                        AND dt_kabupaten.id_kabupaten='$idkab' ";
+        $bibit = $this->db->query($sqlSpkBibit)->row_array();
+        $sqlSpkLapangan = "SELECT SUM(spklapangan.nilai_spklapangan) AS spklapangan FROM spklapangan, tb_petak, tb_blok, dt_desa, dt_kecamatan,dt_kabupaten 
+                        WHERE dt_kabupaten.id_kabupaten=dt_kecamatan.id_kabupaten 
+                        AND dt_kecamatan.id_kecamatan=dt_desa.id_kecamatan 
+                        AND dt_desa.id_desa=tb_blok.id_desa 
+                        AND tb_blok.id_blok=tb_petak.id_blok 
+                        AND tb_petak.id_petak=spklapangan.id_petak 
+                        AND dt_kabupaten.id_kabupaten='$idkab' ";
+        $lapangan = $this->db->query($sqlSpkLapangan)->row_array();
+        $data['totalSpk'] = $bahan['spkbahan'] + $bibit['spkbibit'] + $lapangan['spklapangan'];
+        return $data;
+    }
+
+    public function LoadRealisasi($idkab)
+    {
+        $sqlSpkBahan = "SELECT SUM(nilai_harianbahan) AS realbahan FROM harianbahan WHERE harianbahan.id_kab='$idkab' ";
+        $bahan = $this->db->query($sqlSpkBahan)->row_array();
+        $sqlSpkBibit = "SELECT SUM(nilai_harianbibit) AS realbibit FROM harianbibit WHERE harianbibit.id_kab='$idkab' ";
+        $bibit = $this->db->query($sqlSpkBibit)->row_array();
+        $sqlSpkLapangan = "SELECT SUM(nilai_harianlapangan) AS reallapangan FROM harianlapangan WHERE harianlapangan.id_kab='$idkab' ";
+        $lapangan = $this->db->query($sqlSpkLapangan)->row_array();
+        $data['totalRealisasi'] = $bahan['realbahan'] + $bibit['realbibit'] + $lapangan['reallapangan'];
+        return $data;
+    }
+
+    // Grafik harian (PolarArea chart)
+    public function LoadHarianRealisasi($idpetak)
+    {
+        $kuerispkbahan = $this->db->query("SELECT SUM(nilai_spkbahan) AS spkbahan FROM `spkbahan` WHERE id_petak='$idpetak' ")->row_array();
+        $kuerispkbibit = $this->db->query("SELECT SUM(nilai_spkbibit) AS spkbibit FROM `spkbibit` WHERE id_petak='$idpetak' ")->row_array();
+        $kuerispklapangan = $this->db->query("SELECT SUM(nilai_spklapangan) AS spklapangan FROM `spklapangan` WHERE id_petak='$idpetak' ")->row_array();
+        // realisasi 
+        $kueriharianbahan = $this->db->query("SELECT SUM(nilai_harianbahan) AS harianbahan FROM `harianbahan` WHERE id_petak='$idpetak' ")->row_array();
+        $kueriharianbibit = $this->db->query("SELECT SUM(nilai_harianbibit) AS harianbibit FROM `harianbibit` WHERE id_petak='$idpetak' ")->row_array();
+        $kueriharianlapangan = $this->db->query("SELECT SUM(nilai_harianlapangan) AS harianlapangan FROM `harianlapangan` WHERE id_petak='$idpetak' ")->row_array();
+        $data['bahanreal'] = $kueriharianbahan['harianbahan'] / $kuerispkbahan['spkbahan'] * 100;
+        $data['bibitreal'] = $kueriharianbibit['harianbibit'] / $kuerispkbibit['spkbibit'] * 100;
+        $data['lapanganreal'] = $kueriharianlapangan['harianlapangan'] / $kuerispklapangan['spklapangan'] * 100;
+        return $data;
+    }
+
+    // Grafik Harian Line Chart 
+    public function LoadKueriHarianTglBahan($idpetak)
+    {
+        $tglbahan = "SELECT tgl AS tglbahan FROM harianbahan WHERE id_petak='$idpetak' GROUP BY tgl ORDER BY tgl ASC";
+        return $this->db->query($tglbahan)->result_array();
+    }
+    public function LoadKueriHarianTglBibitNotin($idpetak)
+    {
+        $tglbibit = "SELECT tgl AS tglbibit FROM harianbibit WHERE id_petak='$idpetak' AND tgl NOT IN (SELECT tgl FROM harianbahan WHERE id_petak = '$idpetak') GROUP BY tgl ORDER BY tgl ASC";
+        return $this->db->query($tglbibit)->result_array();
+    }
+    public function LoadKueriHarianTglLapangan($idpetak)
+    {
+        $tgllapangan = "SELECT tgl AS tgllapangan FROM harianlapangan WHERE id_petak='$idpetak' AND tgl NOT IN (SELECT tgl FROM harianbahan WHERE id_petak = '$idpetak') AND tgl NOT IN (SELECT tgl FROM harianbibit WHERE id_petak = '$idpetak') GROUP BY tgl ORDER BY tgl ASC";
+        return $this->db->query($tgllapangan)->result_array();
+    }
+    public function LoadKueriHarianTglNilai($petak, $tgl)
+    {
+        $bahan = $this->db->query("SELECT count(id_harianbahan) AS jumbahan FROM harianbahan WHERE tgl = '$tgl' AND id_petak='$petak'")->row_array();
+        $bibit = $this->db->query("SELECT count(id_harianbibit) AS jumbibit FROM harianbibit WHERE tgl = '$tgl' AND id_petak='$petak'")->row_array();
+        $lapangan = $this->db->query("SELECT count(id_harianlapangan) AS jumlapangan FROM harianlapangan WHERE tgl = '$tgl' AND id_petak='$petak'")->row_array();
+        $data['nilai'] = $bahan['jumbahan'] + $bibit['jumbibit'] + $lapangan['jumlapangan'];
+        return $data;
+    }
+
+    // keterangan dari report mingguan 
+    public function ReaisasiSphBibitReport($idspk, $petak)
+    {
+        $sql = "SELECT SUM(nilai_harianbibit) as tot  FROM harianbibit WHERE id_spkbibit='$idspk' AND id_petak='$petak' ";
+        return $this->db->query($sql)->row_array();
+    }
+
+    // Report Mingguan BLOK Bahan
+    public function LoadReportBlok($idblok)
+    {
+        $sql = "SELECT nm_kabupaten, nm_kecamatan, nm_desa, tb_blok.* FROM dt_kabupaten, dt_kecamatan, dt_desa, tb_blok
+                WHERE dt_kecamatan.id_kabupaten=dt_kabupaten.id_kabupaten
+                AND dt_desa.id_kecamatan=dt_kecamatan.id_kecamatan
+                AND tb_blok.id_desa=dt_desa.id_desa
+                AND tb_blok.id_blok='$idblok'";
+        return $this->db->query($sql)->row_array();
+    }
+    public function LoadKegiatanBahanBlok($idblok)
+    {
+        $sql = "SELECT * FROM tb_petak, spkbahan, jenis_kegiatan WHERE tb_petak.id_petak=spkbahan.id_petak AND spkbahan.id_kegiatan=jenis_kegiatan.id_kegiatan AND tb_petak.id_blok='$idblok' 
+                GROUP BY jenis_kegiatan.id_kegiatan ORDER BY jenis_kegiatan.id_kegiatan ASC";
+        return $this->db->query($sql)->result_array();
+    }
+    public function LoadBahanHarianspkBlok($blok, $spk)
+    {
+        $sql = "SELECT SUM(nilai_spkbahan) AS spk FROM tb_petak, spkbahan, jenis_kegiatan 
+                WHERE tb_petak.id_petak=spkbahan.id_petak AND spkbahan.id_kegiatan=jenis_kegiatan.id_kegiatan AND tb_petak.id_blok='$blok' AND jenis_kegiatan.id_kegiatan='$spk' ";
+        return $this->db->query($sql)->row_array();
+    }
+    public function LoadBahanHarianBlok($IdSpk, $Tgl, $blok)
+    {
+        $sql = "SELECT SUM(nilai_harianbahan) as tot FROM harianbahan WHERE id_spkbahan = '$IdSpk' AND tgl = '$Tgl' AND id_blok='$blok' ";
+        $r = $this->db->query($sql)->result_array();
+        $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
+        return $res;
+    }
+    public function LoadBahanMingguanBlokAllReal($IdSpk)
+    {
+        $sql = "SELECT SUM(nilai_harianbahan) as realisasi FROM harianbahan WHERE id_spkbahan = '$IdSpk' ";
+        return $this->db->query($sql)->row_array();
+    }
+
+    // Report Mingguan BLOK Bibit
+    public function LoadKegiatanBibitBlok($idBlok)
+    {
+        $sql = "SELECT * FROM tb_petak, spkbibit
+                WHERE spkbibit.id_petak=tb_petak.id_petak
+                AND tb_petak.id_blok='$idBlok' GROUP BY spkbibit.kategori ORDER BY spkbibit.kategori";
+        return $this->db->query($sql)->result_array();
+    }
+
+    public function LoadBibitBlokSpkTotal($blok, $kategori)
+    {
+        $sqlSpk = "SELECT SUM(spkbibit.nilai_spkbibit) AS TotalSpk FROM tb_petak, spkbibit WHERE spkbibit.id_petak=tb_petak.id_petak AND tb_petak.id_blok='$blok' AND spkbibit.kategori='$kategori'";
+        $sqlReal = "SELECT SUM(harianbibit.nilai_harianbibit) AS totReal FROM harianbibit, spkbibit WHERE harianbibit.id_spkbibit=spkbibit.id_spkbibit AND harianbibit.id_blok='$blok' AND spkbibit.kategori='$kategori'";
+        $data['TotalSpk'] = $this->db->query($sqlSpk)->row_array()['TotalSpk'];
+        $data['totReal'] = $this->db->query($sqlReal)->row_array()['totReal'];
+        return $data;
+    }
+    public function loadBibitKategoriBlok($blok, $kategori)
+    {
+        $sql = "SELECT * FROM bibit, spkbibit_bantu, spkbibit, tb_petak
+                WHERE bibit.id_bibit=spkbibit_bantu.id_bibit
+                AND spkbibit_bantu.id_spkbibit=spkbibit.id_spkbibit
+                AND spkbibit.id_petak=tb_petak.id_petak AND tb_petak.id_blok='$blok' AND spkbibit.kategori='$kategori' GROUP BY bibit.nm_bibit ORDER BY bibit.nm_bibit ASC";
+        return $this->db->query($sql)->result_array();
+    }
+
+    public function LoadBibitHarianBlok($blok, $tgl, $bibit)
+    {
+        $sql = "SELECT SUM(nilai_harianbibit) as tot FROM harianbibit WHERE id_blok = '$blok' AND tgl = '$tgl' AND id_bibit = '$bibit'";
+        $r = $this->db->query($sql)->result_array();
+        $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
+        return $res;
+    }
+    public function LoadBibitHarianBlokAll($blok, $bibit)
+    {
+        $sql = "SELECT SUM(nilai_harianbibit) as tot FROM harianbibit WHERE id_blok = '$blok' AND id_bibit = '$bibit'";
+        return $this->db->query($sql)->row_array();
+    }
+
+    // Report Mingguan BLOK Lapangan
+    public function LoadKegiatanLapanganBlok($idblok)
+    {
+        $sql = "SELECT * FROM tb_petak, spklapangan, jenis_kegiatan WHERE tb_petak.id_petak=spklapangan.id_petak AND spklapangan.id_kegiatan=jenis_kegiatan.id_kegiatan AND tb_petak.id_blok='$idblok' 
+                GROUP BY jenis_kegiatan.id_kegiatan ORDER BY jenis_kegiatan.id_kegiatan ASC";
+        return $this->db->query($sql)->result_array();
+    }
+    public function LoadLapanganMingguanBlokAllReal($IdSpk)
+    {
+        $sql = "SELECT SUM(nilai_harianlapangan) as realisasi FROM harianlapangan WHERE id_spklapangan = '$IdSpk' ";
+        return $this->db->query($sql)->row_array();
     }
 }

@@ -33,7 +33,17 @@
         }
         ?>
 
-        <?php include 'grafikpengawasan.php'; ?>
+        <?php
+        // foreach ($kabupaten as $value) {
+        //     $spkReal = $this->report->LoadRealisasi($value['id_kabupaten']);
+        //     echo "<pre>";
+        //     echo '"' . $spkReal['totalRealisasi'] . '",';
+        // }
+
+        include 'grafikbar.php';
+        include 'grafikpengawasan.php';
+
+        ?>
     </div>
     <!-- /.container-fluid -->
 
