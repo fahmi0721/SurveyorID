@@ -317,18 +317,20 @@ foreach ($kegiatanbibit as $keyb) {
     }
     $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
     $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
-    if (array_key_exists($keyb['id_spkbibit'], $ResalisasiBibir)) {
-        $Ket = $ResalisasiBibir[$keyb['id_spkbibit']] < $SpkBibit ? "PROSES" : "LENGKAP";
-        $dari = $ResalisasiBibir[$keyb['id_spkbibit']];
-    } else {
-        $Ket = "PROSES";
-        $dari = 0;
-    }
+    $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
+    $ket = $SdMingguIniBib['tot'] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
+    // if (array_key_exists($keyb['id_spkbibit'], $ResalisasiBibir)) {
+    //     $Ket = $ResalisasiBibir[$keyb['id_spkbibit']] < $SpkBibit ? "PROSES" : "LENGKAP";
+    //     $dari = $ResalisasiBibir[$keyb['id_spkbibit']];
+    // } else {
+    //     $Ket = "PROSES";
+    //     $dari = 0;
+    // }
     $spreadsheet->setActiveSheetIndex(0)
         ->setCellValue('G' . $noBi,  number_format($MguLaluBibit, 2, '.', ','))
         ->setCellValue('H' . $noBi,  number_format($TotalBibit, 2, '.', ','))
         ->setCellValue('I' . $noBi,  number_format($SdMingguIniBibit, 2, '.', ','))
-        ->setCellValue('J' . $noBi,  $Ket);
+        ->setCellValue('J' . $noBi,  $ket);
     $TotalBibit = 0;
     $noAkhirBibit = $noBi++;
 }

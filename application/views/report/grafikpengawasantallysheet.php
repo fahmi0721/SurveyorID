@@ -3,9 +3,11 @@
     <canvas id="myAreaChartTallysheet"></canvas>
 </div>
 <hr>
-<div class="bg-gradient-success text-white p-2 text-center"><b>Grafik Jumlah Bibit</b></div>
-<div class="chart-area">
-    <canvas id="myAreaChartTallysheetBibit"></canvas>
+<div class="bg-gradient-success text-white p-2 text-center"><b>Grafik Jumlah Bibit</b> </div>
+<div class="col-sm-12 scrolBar">
+    <div class="chart-area" style="min-width: 1350px; height: 500px">
+        <canvas id="myAreaChartTallysheetBibit"></canvas>
+    </div>
 </div>
 
 <script>
@@ -107,15 +109,36 @@
                     }
                 }],
             },
+
+            animation: {
+                duration: 7,
+                onComplete: function() {
+                    var chartInstance = this.chart,
+                        ctx = chartInstance.ctx;
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = "rgba(0, 99, 132, 0.6)";
+                    ctx.textBaseline = 'bottom';
+
+                    this.data.datasets.forEach(function(dataset, i) {
+                        var meta = chartInstance.controller.getDatasetMeta(i);
+                        meta.data.forEach(function(bar, index) {
+                            var data = dataset.data[index];
+                            ctx.fillText(data, bar._model.x, bar._model.y - 8);
+
+                        });
+                    });
+                }
+            },
             legend: {
                 display: false
             },
             tooltips: {
-                backgroundColor: "rgba(255,255,255, 0.9)",
-                bodyFontColor: "#858796",
+                backgroundColor: "rgba(0,0,0, 0.9)",
+                bodyFontColor: "#ffffff",
                 titleMarginBottom: 10,
-                titleFontColor: '#6e707e',
+                titleFontColor: '#ffffff',
                 titleFontSize: 20,
+                bodyFontSize: 18,
                 borderColor: '#dddfeb',
                 borderWidth: 2,
                 xPadding: 15,
@@ -127,7 +150,7 @@
                 callbacks: {
                     label: function(tooltipItem, chart) {
                         var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                        return datasetLabel + ': Vol ' + number_format(tooltipItem.yLabel);
+                        return datasetLabel + ' : ' + number_format(tooltipItem.yLabel) + ' Aktivitas';
                     }
                 }
             }
@@ -142,13 +165,13 @@
             labels: [
                 <?php
                 foreach ($bibitsheet as $value) {
-                    echo '"' . $value['nm_bibit'] . '",';
+                    echo '"' . $value['nm_bibit'] . ' *",';
                 }
                 ?>
             ],
             datasets: [{
                 label: "Jumlah Bibit ",
-                lineTension: 0.3,
+                lineTension: 0.2,
                 backgroundColor: "rgba(10, 209, 133, 0.6)",
                 borderColor: "rgba(10, 209, 133, 0.6)",
                 pointRadius: 3,
@@ -174,8 +197,8 @@
             maintainAspectRatio: false,
             layout: {
                 padding: {
-                    left: 10,
-                    right: 25,
+                    left: 1,
+                    right: 2,
                     top: 25,
                     bottom: 0
                 }
@@ -190,7 +213,7 @@
                         drawBorder: false
                     },
                     ticks: {
-                        maxTicksLimit: 7
+                        maxTicksLimit: 50
                     }
                 }],
                 yAxes: [{
@@ -199,7 +222,7 @@
                         padding: 10,
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return 'Vol ' + number_format(value);
+                            return number_format(value) + ' Batang';
                         }
                     },
                     gridLines: {
@@ -211,21 +234,39 @@
                     }
                 }],
             },
+            animation: {
+                duration: 1,
+                onComplete: function() {
+                    var chartInstance = this.chart,
+                        ctx = chartInstance.ctx;
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = "rgba(0, 99, 132, 0.3)";
+                    ctx.textBaseline = 'bottom';
+                    this.data.datasets.forEach(function(dataset, i) {
+                        var meta = chartInstance.controller.getDatasetMeta(i);
+                        meta.data.forEach(function(bar, index) {
+                            var data = number_format(dataset.data[index], '0', '.', ',');
+                            ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                        });
+                    });
+                }
+            },
             legend: {
                 display: false
             },
             tooltips: {
-                backgroundColor: "rgba(255,255,255, 0.9)",
-                bodyFontColor: "#858796",
+                backgroundColor: "rgba(0,0,0, 1)",
+                bodyFontColor: "#ffffff",
+                bodyFontSize: 16,
                 titleMarginBottom: 10,
-                titleFontColor: '#6e707e',
-                titleFontSize: 20,
+                titleFontColor: '#ffffff',
+                titleFontSize: 24,
                 borderColor: '#dddfeb',
                 borderWidth: 2,
                 xPadding: 15,
                 yPadding: 15,
                 displayColors: false,
-                intersect: false,
+                intersect: true,
                 mode: 'index',
                 caretPadding: 10,
                 callbacks: {
@@ -237,4 +278,7 @@
             }
         }
     });
+
+
+    // Tes 2 
 </script>
