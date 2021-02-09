@@ -301,11 +301,12 @@ class Menu_model extends CI_Model
     }
     public function getBibitspk()
     {
-        $queri = "SELECT * FROM  `spkbibit`, `tb_petak`, `tb_blok`, `dt_desa`, `dt_kecamatan`
+        $queri = "SELECT * FROM  `spkbibit`, `tb_petak`, `tb_blok`, `dt_desa`, `dt_kecamatan`, `dt_kabupaten`
                     WHERE `spkbibit`.`id_petak` = `tb_petak`.`id_petak`
                     AND `tb_petak`.`id_blok` = `tb_blok`.`id_blok`
                     AND `tb_blok`.`id_desa` = `dt_desa`.`id_desa`
                     AND `dt_desa`.`id_kecamatan` = `dt_kecamatan`.`id_kecamatan`
+                    AND `dt_kecamatan`.`id_kabupaten`=`dt_kabupaten`.`id_kabupaten`
                     GROUP BY `spkbibit`.`id_petak` ORDER BY `spkbibit`.`id_petak` ASC";
         return $this->db->query($queri)->result_array();
     }

@@ -174,6 +174,7 @@ class Report extends CI_Controller
         $data['title'] = 'Report Mingguan';
         $data['user'] = $this->db->get_where('dt_user', ['email' =>
         $this->session->userdata('email')])->row_array();
+        $this->load->model('Report_model', 'report');
         $data['kabupaten'] = $this->loadKecamatan($Id);
 
         $this->load->view('templates/header', $data);
@@ -181,6 +182,16 @@ class Report extends CI_Controller
         $this->load->view('templates/topbar', $data);
         $this->load->view('report/kabupaten', $data);
         $this->load->view('templates/footer');
+    }
+    public function detailExcelKab($Id, $tgl)
+    {
+        $data['tglmulai'] = $tgl;
+        $data['title'] = 'Report Mingguan';
+        $data['user'] = $this->db->get_where('dt_user', ['email' =>
+        $this->session->userdata('email')])->row_array();
+        $this->load->model('Report_model', 'report');
+        $data['lokasi'] = $this->db->get_where('dt_kabupaten', ['id_kabupaten' => $Id])->row_array();
+        $this->load->view('report/excelKab', $data);
     }
 
     public function kecamatan($Id)

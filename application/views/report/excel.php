@@ -59,9 +59,9 @@ $drawings->setHeight(136);
 $drawings->setWidth(90);
 // style tittle /Format cell Judul
 
-$spreadsheet->getActiveSheet()->mergeCells('A5:J5');
-$spreadsheet->getActiveSheet()->mergeCells('A6:J6');
-$spreadsheet->getActiveSheet()->mergeCells('A7:J7');
+$spreadsheet->getActiveSheet()->mergeCells('A5:K5');
+$spreadsheet->getActiveSheet()->mergeCells('A6:K6');
+$spreadsheet->getActiveSheet()->mergeCells('A7:K7');
 $spreadsheet->getActiveSheet()->mergeCells('A9:B9');
 $spreadsheet->getActiveSheet()->mergeCells('A10:B10');
 $spreadsheet->getActiveSheet()->mergeCells('A11:B11');
@@ -82,8 +82,9 @@ $spreadsheet->getActiveSheet()->mergeCells('A13:A14'); // No
 $spreadsheet->getActiveSheet()->mergeCells('B13:D14'); // Jenis Kegiatan
 $spreadsheet->getActiveSheet()->mergeCells('E13:F13'); // Rencana
 $spreadsheet->getActiveSheet()->mergeCells('G13:I13'); // Progress Mingguan
-$spreadsheet->getActiveSheet()->mergeCells('J13:J14'); // KETERANGAN
-$spreadsheet->getActiveSheet()->mergeCells('B15:J15'); // BAHAN BAHAN
+$spreadsheet->getActiveSheet()->mergeCells('J13:J14'); // Realisasi
+$spreadsheet->getActiveSheet()->mergeCells('K13:K14'); // KETERANGAN
+$spreadsheet->getActiveSheet()->mergeCells('B15:K15'); // BAHAN BAHAN
 $styleTableHead = [
     'font' => [
         'size' => 11,
@@ -176,6 +177,13 @@ $styleTextCenter = [
         ],
     ],
 ];
+$styleRataTengah = [
+    'alignment' => [
+        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+    ],
+];
+$spreadsheet->getActiveSheet()->getStyle('A1:L60')->applyFromArray($styleRataTengah);
+
 $spreadsheet->getActiveSheet()->getStyle('E14')->applyFromArray($styleTableHead);
 $spreadsheet->getActiveSheet()->getStyle('F14')->applyFromArray($styleTableHead);
 $spreadsheet->getActiveSheet()->getStyle('G14')->applyFromArray($styleTableHead);
@@ -185,9 +193,10 @@ $spreadsheet->getActiveSheet()->getStyle('A13:A14')->applyFromArray($styleTableH
 $spreadsheet->getActiveSheet()->getStyle('B13:D14')->applyFromArray($styleTableHead); // BORDER Jenis Kegiatan
 $spreadsheet->getActiveSheet()->getStyle('E13:F13')->applyFromArray($styleTableHead); // BORDER Rencana
 $spreadsheet->getActiveSheet()->getStyle('G13:I13')->applyFromArray($styleTableHead); // BORDER Progress Mingguan
-$spreadsheet->getActiveSheet()->getStyle('J13:J14')->applyFromArray($styleTableHead); // BORDER KETERANGAN
+$spreadsheet->getActiveSheet()->getStyle('J13:J14')->applyFromArray($styleTableHead); // BORDER Realisasi
+$spreadsheet->getActiveSheet()->getStyle('K13:K14')->applyFromArray($styleTableHead); // BORDER KETERANGAN
 $spreadsheet->getActiveSheet()->getStyle('A15')->applyFromArray($styleTableHeadSub); // BORDER I
-$spreadsheet->getActiveSheet()->getStyle('B15:J15')->applyFromArray($styleTableHeadSub); // BORDER BAHAN BAHAN
+$spreadsheet->getActiveSheet()->getStyle('B15:K15')->applyFromArray($styleTableHeadSub); // BORDER BAHAN BAHAN
 
 // Lebar Kolom 
 $spreadsheet->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
@@ -243,7 +252,8 @@ $spreadsheet->setActiveSheetIndex(0)
     ->setCellValue('G14', 'S/D MINGGU LALU')
     ->setCellValue('H14', 'MINGGU INI')
     ->setCellValue('I14', 'S/D MINGGU INI')
-    ->setCellValue('J13', 'KET')
+    ->setCellValue('J13', 'REALISASI')
+    ->setCellValue('K13', 'KETERANGAN')
     ->setCellValue('A15', 'I')
     ->setCellValue('B15', 'BAHAN BAHAN');
 
@@ -254,6 +264,7 @@ $Totalbahan = 0;
 $kegiatanbahan = $this->report->LoadKegiatanBahan($lokasi['id_petak']);
 foreach ($kegiatanbahan as $key) {
     $MguLalu = $this->report->LoadBahanHarianLastBahan($key['id_spkbahan'], $tglmulai);
+    $realisasi = $this->report->LoadBahanMingguanRealisasi($key['id_spkbahan'], $lokasi['id_petak'])['total'];
     $spreadsheet->getActiveSheet()->mergeCells('B' . $no . ':D' . $no); //buat marge cell Jenis Kegiatan BAHAN BAHAN
     $spreadsheet->getActiveSheet()->getStyle('A' . $no)->applyFromArray($styleBorderLeft); // BORDER nomor
     $spreadsheet->getActiveSheet()->getStyle('B' . $no . ':D' . $no)->applyFromArray($styleJenisKegiatan); // BORDER Jenis Kegiatan
@@ -262,7 +273,8 @@ foreach ($kegiatanbahan as $key) {
     $spreadsheet->getActiveSheet()->getStyle('G' . $no)->applyFromArray($styleTextCenter); // BORDER s.d minggu lalu
     $spreadsheet->getActiveSheet()->getStyle('H' . $no)->applyFromArray($styleTextCenter); // BORDER minggu ini
     $spreadsheet->getActiveSheet()->getStyle('I' . $no)->applyFromArray($styleTextCenter); // BORDER S/d minggu ini
-    $spreadsheet->getActiveSheet()->getStyle('J' . $no)->applyFromArray($styleTextCenter); // KET
+    $spreadsheet->getActiveSheet()->getStyle('J' . $no)->applyFromArray($styleTextCenter); // Realisasi
+    $spreadsheet->getActiveSheet()->getStyle('K' . $no)->applyFromArray($styleTextCenter); // KET
     $spreadsheet->setActiveSheetIndex(0)
         ->setCellValue('A' . $no,  $urut++)
         ->setCellValue('B' . $no, $key['nm_kegiatan'])
@@ -273,20 +285,21 @@ foreach ($kegiatanbahan as $key) {
     }
     $SpkBahan = $this->report->getSpkBahan($key['id_spkbahan']);
     $SdMingguIni = $MguLalu + $Totalbahan;
-    $Ket = $SdMingguIni < $SpkBahan ? 'PROSES' : 'LENGKAP';
+    $Ket = $realisasi < $SpkBahan ? "PROSES" : "LENGKAP";
     $spreadsheet->setActiveSheetIndex(0)
         ->setCellValue('G' . $no,  number_format($MguLalu, 2, '.', ','))
         ->setCellValue('H' . $no,  number_format($Totalbahan, 2, '.', ','))
         ->setCellValue('I' . $no,  number_format($SdMingguIni, 2, '.', ','))
-        ->setCellValue('J' . $no,  $Ket);
+        ->setCellValue('J' . $no,  number_format($realisasi, 2, ',', '.'))
+        ->setCellValue('K' . $no,  $Ket);
     $Totalbahan = 0;
     $NoAkhirBahan = $no++;
 }
 $noPengadaanBibit = $NoAkhirBahan + 1; // Ambil No.baris terahir bahan + 1
 // MargeCell Bibit 
-$spreadsheet->getActiveSheet()->mergeCells('B' . $noPengadaanBibit . ':J' . $noPengadaanBibit); // BAHAN BAHAN
+$spreadsheet->getActiveSheet()->mergeCells('B' . $noPengadaanBibit . ':K' . $noPengadaanBibit); // BAHAN BAHAN
 $spreadsheet->getActiveSheet()->getStyle('A' . $noPengadaanBibit)->applyFromArray($styleTableHeadSub); // BORDER I
-$spreadsheet->getActiveSheet()->getStyle('B' . $noPengadaanBibit . ':J' . $noPengadaanBibit)->applyFromArray($styleTableHeadSub); // BORDER BAHAN BAHAN
+$spreadsheet->getActiveSheet()->getStyle('B' . $noPengadaanBibit . ':K' . $noPengadaanBibit)->applyFromArray($styleTableHeadSub); // BORDER BAHAN BAHAN
 $spreadsheet->setActiveSheetIndex(0)
     ->setCellValue('A' . $noPengadaanBibit, 'II')
     ->setCellValue('B' . $noPengadaanBibit, 'PENGADAAN BIBIT SULAMAN');
@@ -298,6 +311,7 @@ $kegiatanbibit = $this->report->LoadKegiatanBibit($lokasi['id_petak']);
 $ResalisasiBibir = $this->report->ReaisasiSphBibit();
 foreach ($kegiatanbibit as $keyb) {
     $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $keyb['id_bibit']);
+    $realbibit = $this->report->loadRealBibit($keyb['id_bibit'], $lokasi['id_petak'])['total'];
     $spreadsheet->getActiveSheet()->mergeCells('B' . $noBi . ':D' . $noBi); //buat marge cell Jenis Kegiatan BAHAN BAHAN
     $spreadsheet->getActiveSheet()->getStyle('A' . $noBi)->applyFromArray($styleBorderLeft); // BORDER nomor
     $spreadsheet->getActiveSheet()->getStyle('B' . $noBi . ':D' . $noBi)->applyFromArray($styleJenisKegiatan); // BORDER Jenis Kegiatan
@@ -307,6 +321,7 @@ foreach ($kegiatanbibit as $keyb) {
     $spreadsheet->getActiveSheet()->getStyle('H' . $noBi)->applyFromArray($styleTextCenter); // BORDER minggu ini
     $spreadsheet->getActiveSheet()->getStyle('I' . $noBi)->applyFromArray($styleTextCenter); // BORDER S/d minggu ini
     $spreadsheet->getActiveSheet()->getStyle('J' . $noBi)->applyFromArray($styleTextCenter); // KET
+    $spreadsheet->getActiveSheet()->getStyle('K' . $noBi)->applyFromArray($styleTextCenter); // KET
     $spreadsheet->setActiveSheetIndex(0)
         ->setCellValue('A' . $noBi,  $urut++)
         ->setCellValue('B' . $noBi, $keyb['nm_bibit'])
@@ -318,27 +333,22 @@ foreach ($kegiatanbibit as $keyb) {
     $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
     $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
     $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
-    $ket = $SdMingguIniBib['tot'] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
-    // if (array_key_exists($keyb['id_spkbibit'], $ResalisasiBibir)) {
-    //     $Ket = $ResalisasiBibir[$keyb['id_spkbibit']] < $SpkBibit ? "PROSES" : "LENGKAP";
-    //     $dari = $ResalisasiBibir[$keyb['id_spkbibit']];
-    // } else {
-    //     $Ket = "PROSES";
-    //     $dari = 0;
-    // }
+    $ket = $realbibit < $SpkBibit ? "PROSES" : "LENGKAP";
+
     $spreadsheet->setActiveSheetIndex(0)
         ->setCellValue('G' . $noBi,  number_format($MguLaluBibit, 2, '.', ','))
         ->setCellValue('H' . $noBi,  number_format($TotalBibit, 2, '.', ','))
         ->setCellValue('I' . $noBi,  number_format($SdMingguIniBibit, 2, '.', ','))
-        ->setCellValue('J' . $noBi,  $ket);
+        ->setCellValue('J' . $noBi,  number_format($realbibit, 2, ',', '.'))
+        ->setCellValue('K' . $noBi,  $ket);
     $TotalBibit = 0;
     $noAkhirBibit = $noBi++;
 }
 // MargeCell Lapangan
 $noPengadaanLap = $noAkhirBibit + 1; // Ambil No.baris terahir Bibit & + 1
-$spreadsheet->getActiveSheet()->mergeCells('B' . $noPengadaanLap . ':J' . $noPengadaanLap); // Mergecell LAPANGAN
+$spreadsheet->getActiveSheet()->mergeCells('B' . $noPengadaanLap . ':K' . $noPengadaanLap); // Mergecell LAPANGAN
 $spreadsheet->getActiveSheet()->getStyle('A' . $noPengadaanLap)->applyFromArray($styleTableHeadSub); // BORDER I
-$spreadsheet->getActiveSheet()->getStyle('B' . $noPengadaanLap . ':J' . $noPengadaanLap)->applyFromArray($styleTableHeadSub); // BORDER LAPANGAN
+$spreadsheet->getActiveSheet()->getStyle('B' . $noPengadaanLap . ':K' . $noPengadaanLap)->applyFromArray($styleTableHeadSub); // BORDER LAPANGAN
 $spreadsheet->setActiveSheetIndex(0)
     ->setCellValue('A' . $noPengadaanLap, 'III')
     ->setCellValue('B' . $noPengadaanLap, 'KEGIATAN DI LAPANGAN');
@@ -348,7 +358,7 @@ $TotalLapangan = 0;
 $kegiatanlapangan = $this->report->LoadKegiatanLapangan($lokasi['id_petak']);;
 foreach ($kegiatanlapangan as $keyl) {
     $MguLaluLapangan = $this->report->LoadLapanganHarianLast($keyl['id_spklapangan'], $tglmulai);
-
+    $realisasi = $this->report->loadRealMingguanLap($keyl['id_spklapangan'], $lokasi['id_petak'])['tot'];
     $spreadsheet->getActiveSheet()->mergeCells('B' . $noLa . ':D' . $noLa); //buat marge cell Jenis Kegiatan BAHAN BAHAN
     $spreadsheet->getActiveSheet()->getStyle('A' . $noLa)->applyFromArray($styleBorderLeft); // BORDER nomor
     $spreadsheet->getActiveSheet()->getStyle('B' . $noLa . ':D' . $noLa)->applyFromArray($styleJenisKegiatan); // BORDER Jenis Kegiatan
@@ -358,6 +368,7 @@ foreach ($kegiatanlapangan as $keyl) {
     $spreadsheet->getActiveSheet()->getStyle('H' . $noLa)->applyFromArray($styleTextCenter); // BORDER minggu ini
     $spreadsheet->getActiveSheet()->getStyle('I' . $noLa)->applyFromArray($styleTextCenter); // BORDER S/d minggu ini
     $spreadsheet->getActiveSheet()->getStyle('J' . $noLa)->applyFromArray($styleTextCenter); // KET
+    $spreadsheet->getActiveSheet()->getStyle('K' . $noLa)->applyFromArray($styleTextCenter); // KET
     $spreadsheet->setActiveSheetIndex(0)
         ->setCellValue('A' . $noLa,  $nol++)
         ->setCellValue('B' . $noLa, $keyl['nm_kegiatan'])
@@ -368,19 +379,19 @@ foreach ($kegiatanlapangan as $keyl) {
     }
     $SpkLapangan = $this->report->getSpkLapangan($keyl['id_spklapangan']);
     $SdMingguIni = $MguLaluLapangan + $TotalLapangan;
-    $Ket = $SdMingguIni < $SpkLapangan ? "PROSES" : "LENGKAP";
-
+    $Ket = $realisasi < $SpkLapangan ? "PROSES" : "LENGKAP";
     $spreadsheet->setActiveSheetIndex(0)
         ->setCellValue('G' . $noLa,  number_format($MguLaluLapangan, 2, '.', ','))
         ->setCellValue('H' . $noLa,  number_format($TotalLapangan, 2, '.', ','))
         ->setCellValue('I' . $noLa,  number_format($SdMingguIni, 2, '.', ','))
-        ->setCellValue('J' . $noLa,  $Ket);
+        ->setCellValue('J' . $noLa,  number_format($realisasi, 2, ',', '.'))
+        ->setCellValue('K' . $noLa,  $Ket);
     $TotalLapangan = 0;
     $EndNo = $noLa++;
 }
 
 $EndLine = $EndNo + 1;
-$spreadsheet->getActiveSheet()->getStyle('A' . $EndLine . ':J' . $EndLine)->applyFromArray($styleTableHeadSub); // BORDER LAPANGAN
+$spreadsheet->getActiveSheet()->getStyle('A' . $EndLine . ':K' . $EndLine)->applyFromArray($styleTableHeadSub); // BORDER LAPANGAN
 $spreadsheet->setActiveSheetIndex(0)
     ->setCellValue('A' . $EndLine,  '');
 
