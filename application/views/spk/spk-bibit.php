@@ -40,7 +40,7 @@
                                 ?>
                                     <tr>
                                         <td class="text-center"><?= $no++; ?></td>
-                                        <td>Kec. <?= $spkbi['nm_kecamatan'] . ", </br>Desa. " . $spkbi['nm_desa'] . ", </br> " . $spkbi['nm_blok'] . " <b>|</b> " . $spkbi['nm_petak']; ?></td>
+                                        <td>Kabupaten <?= $spkbi['nm_kabupaten'] . ", </br>Kec. " . $spkbi['nm_kecamatan'] . ", </br>Desa. " . $spkbi['nm_desa'] . ", </br> " . $spkbi['nm_blok'] . " <b>|</b> " . $spkbi['nm_petak']; ?></td>
                                         <td colspan="2">
                                             <div class="row m-0 p-0">
                                                 <?php

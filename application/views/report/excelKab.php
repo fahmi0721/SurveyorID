@@ -1,6 +1,5 @@
 <?php
 if (isset($tglmulai) != "") {
-    $lokasi = $this->report->LoadReportBlok($blok);
     $dates = array();
     $tglmulai = $tglmulai;
     $dates[] = $tglmulai;
@@ -259,26 +258,21 @@ $styleRataTengah = [
 ];
 $spreadsheet->getActiveSheet()->getStyle('A1:Q60')->applyFromArray($styleRataTengah);
 $spreadsheet->getActiveSheet()->getStyle('A13:P14')->applyFromArray($styleHeader);
-
+$luasKab = $this->report->luasKab($lokasi['id_kabupaten'])['luasnya'];
 $spreadsheet->setActiveSheetIndex(0)
     ->setCellValue('A8', 'KABUPATEN')
-    ->setCellValue('A9', 'KECAMATAN')
-    ->setCellValue('A10', 'DESA')
-    ->setCellValue('A11', 'PELAKSANA')
-    ->setCellValue('C8', ':')->setCellValue('C9', ':')->setCellValue('C10', ':')->setCellValue('C11', ':')
+    ->setCellValue('A9', 'PELAKSANA')
+    ->setCellValue('A10', 'LUAS')
+    ->setCellValue('C8', ':')->setCellValue('C9', ':')->setCellValue('C10', ':')
     ->setCellValue('D8', $lokasi['nm_kabupaten'])
-    ->setCellValue('D9', $lokasi['nm_kecamatan'])
-    ->setCellValue('D10', $lokasi['nm_desa'])
-    ->setCellValue('D11', 'PTSI')
-    ->setCellValue('F8', 'BLOK')
-    ->setCellValue('F9', 'LUAS')
-    ->setCellValue('F10', 'MINGGU KE')
-    ->setCellValue('F11', 'BULAN / TAHUN')
-    ->setCellValue('G8', ':')->setCellValue('G9', ':')->setCellValue('G10', ':')->setCellValue('G11', ':')
-    ->setCellValue('H8', $lokasi['nm_blok'])
-    ->setCellValue('H9', $lokasi['luas'] . ' HA')
-    ->setCellValue('H10', "$minggu")
-    ->setCellValue('H11', "$bulan")
+    ->setCellValue('D9', 'PTSI')
+    ->setCellValue('D10', $luasKab . ' HA')
+
+    ->setCellValue('F8', 'MINGGU KE')
+    ->setCellValue('F9', 'BULAN / TAHUN')
+    ->setCellValue('G8', ':')->setCellValue('G9', ':')
+    ->setCellValue('H8', "$minggu")
+    ->setCellValue('H9', "$bulan")
     // Table Head 
     ->setCellValue('A13', 'NO')
     ->setCellValue('B13', 'JENIS KEGIATAN')
@@ -309,11 +303,12 @@ $spreadsheet->setActiveSheetIndex(0)
 $no = 16;
 $urut = 1;
 $Totalbahan = 0;
-$kegiatanbahan = $this->report->LoadKegiatanBahanBlok($lokasi['id_blok']);
+$kegiatanbahan = $this->report->LoadKegiatanBahanKab($lokasi['id_kabupaten']);
 foreach ($kegiatanbahan as $key) {
-    $MguLalu = $this->report->LoadBahanHarianLastBahan($key['id_spkbahan'], $tglmulai);
-    $SpkBahan = $this->report->LoadBahanHarianspkBlok($lokasi['id_blok'], $key['id_kegiatan']);
-    $realisasi = $this->report->LoadBahanMingguanBlokAllReal($key['id_kegiatan'], $lokasi['id_blok']);
+    $MguLalu = $this->report->LoadBahanMingguanLastBahan($key['id_kegiatan'], $tglmulai, $lokasi['id_kabupaten']);
+    $SpkBahan = $this->report->LoadBahanHarianSpkKab($lokasi['id_kabupaten'], $key['id_kegiatan']);
+    $realisasi = $this->report->LoadBahanMingguanKabAllReal($key['id_kegiatan'], $lokasi['id_kabupaten']);
+
     $spreadsheet->getActiveSheet()->mergeCells('B' . $no . ':D' . $no); //buat marge cell Jenis Kegiatan BAHAN BAHAN
     $spreadsheet->getActiveSheet()->getStyle('A' . $no)->applyFromArray($styleBorderLeft); // BORDER nomor
     $spreadsheet->getActiveSheet()->getStyle('B' . $no . ':D' . $no)->applyFromArray($styleJenisKegiatan); // BORDER Jenis Kegiatan
@@ -337,7 +332,7 @@ foreach ($kegiatanbahan as $key) {
     $arraybaris = array('F', 'G', 'H', 'I', 'J', 'K', 'L');
     $urutArray = 0;
     foreach ($dates as $tgl) {
-        $tglreal = $this->report->LoadBahanHarianBlok($key['id_spkbahan'], $tgl, $lokasi['id_blok']);
+        $tglreal = $this->report->LoadBahanMingguan($key['id_kegiatan'], $tgl, $lokasi['id_kabupaten']);
         $spreadsheet->setActiveSheetIndex(0)
             ->setCellValue($arraybaris[$urutArray] . $no,  "$tglreal");
         $urutArray = $urutArray + 1;
@@ -366,7 +361,7 @@ $spreadsheet->setActiveSheetIndex(0)
 $noBi = $noPengadaanBibit + 1; // Tambahkan nilai 1 dari nilai akhir sebelumnya
 $urut = 1;
 $TotalBibit = 0;
-$kegiatanbibit = $this->report->LoadKegiatanBibitBlok($lokasi['id_blok']);
+$kegiatanbibit = $this->report->LoadKegiatanBibitKab($lokasi['id_kabupaten']);
 foreach ($kegiatanbibit as $keyb) {
     $spreadsheet->getActiveSheet()->mergeCells('B' . $noBi . ':D' . $noBi); //buat marge cell Jenis Kegiatan BAHAN BAHAN
     $spreadsheet->getActiveSheet()->mergeCells('F' . $noBi . ':N' . $noBi); //buat marge  baris kosong
@@ -377,7 +372,7 @@ foreach ($kegiatanbibit as $keyb) {
     $spreadsheet->getActiveSheet()->getStyle('O' . $noBi)->applyFromArray($styleTableHeadSub); // KET
     $spreadsheet->getActiveSheet()->getStyle('P' . $noBi)->applyFromArray($styleTableHeadSub); // KET
 
-    $totSpk = $this->report->LoadBibitBlokSpkTotal($lokasi['id_blok'], $keyb['kategori']);
+    $totSpk = $this->report->LoadBibitKabSpkTotal($lokasi['id_kabupaten'], $keyb['kategori']);
     $proses = $totSpk['totReal'] < $totSpk['TotalSpk'] ? "PROSES" : "LENGKAP";
     // isi kategori 
     $spreadsheet->setActiveSheetIndex(0)
@@ -389,7 +384,7 @@ foreach ($kegiatanbibit as $keyb) {
 
     // isi bibitnya 
     $noIsiBibit = $noBi + 1;
-    $bibitnya = $this->report->loadBibitKategoriBlok($lokasi['id_blok'], $keyb['kategori']);
+    $bibitnya = $this->report->loadBibitKategoriKab($lokasi['id_kabupaten'], $keyb['kategori']);
     foreach ($bibitnya as $value) {
         $spreadsheet->getActiveSheet()->getStyle('A' . $noIsiBibit)->applyFromArray($styleBorderLeft); // BORDER nomor
         $spreadsheet->getActiveSheet()->mergeCells('B' . $noIsiBibit . ':D' . $noIsiBibit); //buat marge cell Jenis Kegiatan BAHAN BAHAN
@@ -407,9 +402,9 @@ foreach ($kegiatanbibit as $keyb) {
         $spreadsheet->getActiveSheet()->getStyle('O' . $noIsiBibit)->applyFromArray($styleTextCenter);
         $spreadsheet->getActiveSheet()->getStyle('P' . $noIsiBibit)->applyFromArray($styleTextCenter);
 
-        $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $value['id_bibit']);
-        $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $value['id_bibit']);
-        $totRealBibit = $this->report->LoadBibitHarianBlokAll($lokasi['id_blok'], $value['id_bibit']);
+        $MguLaluBibit = $this->report->LoadBahanHarianLastKab($lokasi['id_kabupaten'], $tglmulai, $value['id_bibit']);
+        $totRealBibit = $this->report->LoadBibitHarianKabAll($lokasi['id_kabupaten'], $value['id_bibit']);
+
         $spreadsheet->setActiveSheetIndex(0)
             ->setCellValue('A' . $noIsiBibit, ' ')
             ->setCellValue('B' . $noIsiBibit, '- ' . $value['nm_bibit'])
@@ -417,11 +412,11 @@ foreach ($kegiatanbibit as $keyb) {
         $arraybaris = array('F', 'G', 'H', 'I', 'J', 'K', 'L'); //isi tabel bibit
         $urutArray = 0;
         foreach ($dates as $tgl) {
-            $bibittotal = $this->report->LoadBibitHarianBlok($lokasi['id_blok'], $tgl, $value['id_bibit']);
+            $bibittotal = $this->report->LoadBibitHarianKab($lokasi['id_kabupaten'], $tgl, $value['id_bibit']);
             $spreadsheet->setActiveSheetIndex(0)
                 ->setCellValue($arraybaris[$urutArray] . $noIsiBibit,  "$bibittotal");
             $urutArray = $urutArray + 1;
-            $TotalBibit = $TotalBibit + $this->report->LoadBibitHarianBlok($lokasi['id_blok'], $tgl, $value['id_bibit']);
+            $TotalBibit = $TotalBibit + $bibittotal;
         }
         $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
 
@@ -447,10 +442,11 @@ $spreadsheet->setActiveSheetIndex(0)
 $noLa = $noPengadaanLap + 1; // Tambahkan nilai 1 dari nilai akhir sebelumnya
 $nol = 1;
 $TotalLapangan = 0;
-$kegiatanlapangan = $this->report->LoadKegiatanLapanganBlok($lokasi['id_blok']);
+$kegiatanlapangan = $this->report->LoadKegiatanLapanganKab($lokasi['id_kabupaten']);
 foreach ($kegiatanlapangan as $keyl) {
-    $MguLaluLapangan = $this->report->LoadLapanganHarianLast($keyl['id_spklapangan'], $tglmulai);
-    $realisasi = $this->report->LoadLapanganMingguanBlokAllReal($keyl['id_kegiatan'], $lokasi['id_blok']);
+    $MguLaluLapangan = $this->report->LoadLapanganMingguanLast($keyl['id_kegiatan'], $tglmulai, $lokasi['id_kabupaten']);
+    $SpkLapangan = $this->report->LoadLapanganHarianSpkKab($lokasi['id_kabupaten'], $keyl['id_kegiatan'])['spk'];
+    $realisasi = $this->report->LoadLapanganMingguanKabAllReal($keyl['id_kegiatan'], $lokasi['id_kabupaten']);
 
     $spreadsheet->getActiveSheet()->getStyle('A' . $noLa)->applyFromArray($styleBorderLeft); // BORDER nomor
     $spreadsheet->getActiveSheet()->mergeCells('B' . $noLa . ':D' . $noLa); //buat marge cell Jenis Kegiatan BAHAN BAHAN
@@ -475,13 +471,12 @@ foreach ($kegiatanlapangan as $keyl) {
     $arraybaris = array('F', 'G', 'H', 'I', 'J', 'K', 'L'); //isi tabel bibit
     $urutArray = 0;
     foreach ($dates as $tgl) {
-        $laptotal = $this->report->LoadLapanganHarianKegBlok($keyl['id_kegiatan'], $tgl, $lokasi['id_blok']);
+        $laptotal = $this->report->LoadLapanganMingguan($keyl['id_kegiatan'], $tgl, $lokasi['id_kabupaten']);
         $spreadsheet->setActiveSheetIndex(0)
             ->setCellValue($arraybaris[$urutArray] . $noLa,  "$laptotal");
         $urutArray = $urutArray + 1;
         $TotalLapangan = $TotalLapangan + $laptotal;
     }
-    $SpkLapangan = $this->report->LoadLapanganHarianSpkBlok($lokasi['id_blok'], $keyl['id_kegiatan'])['spk'];
     $SdMingguIni = $MguLaluLapangan + $TotalLapangan;
     $Ket = $realisasi['realisasi'] < $SpkLapangan ? " PROSES " : " LENGKAP ";
 
@@ -506,7 +501,7 @@ $Spreadsheet->getActiveSheet()->setTitle('Report Mingguan');
 $spreadsheet->setActiveSheetIndex(0);
 // Redirect output to a client’s web browser (Xlsx)
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="Report Mingguan" ' . $lokasi['nm_kabupaten'] . "_"  . $lokasi['nm_kecamatan'] . "_"  . $lokasi['nm_desa'] . "_" . $lokasi['nm_blok'] . "_" . date('d-m-Y-His') . '".xlsx"');
+header('Content-Disposition: attachment;filename="Report Mingguan" ' . $lokasi['nm_kabupaten'] . "_" . date('d-m-Y-His') . '".xlsx"');
 header('Cache-Control: max-age=0');
 // If you're serving to IE 9, then the following may be needed
 header('Cache-Control: max-age=1');

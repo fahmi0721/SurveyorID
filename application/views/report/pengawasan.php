@@ -127,145 +127,174 @@
                                     <td>:</td>
                                     <td><?= $bulan; ?></td>
                                 </tr>
-                            </table>
+                            </table><br>
                         </div>
-                        <div class="col-lg-12 text-1x scrol">
-                            <small class="m-1">
-                                <table class="table-bordered table-hover table-sm" width="100%" style="min-width: 999px;">
-                                    <thead>
-                                        <tr class="text-uppercase text-center">
-                                            <th rowspan="2">No</th>
-                                            <th rowspan="2">Jenis Kegiatan</th>
-                                            <th rowspan="2">Satuan</th>
-                                            <th colspan="7">Progress Harian</th>
-                                            <th rowspan="2">Jumlah</th>
-                                            <th rowspan="2">Total/Rencana</th>
-                                            <th rowspan="2">Ket</th>
+                        <div class="col-lg-12 text-1x scrol" style="width: 100%; height:100%; font-size:13px;">
+                            <table class="table-bordered table-hover table-sm" width="100%" style="min-width: 999px;">
+                                <thead>
+                                    <tr class="text-uppercase text-center">
+                                        <th rowspan="2">No</th>
+                                        <th rowspan="2">Jenis Kegiatan</th>
+                                        <th rowspan="2">Satuan</th>
+                                        <th colspan="7">Progress Harian</th>
+                                        <th rowspan="2">Jumlah</th>
+                                        <th rowspan="2">Total | Realisasi | Rencana</th>
+                                        <th rowspan="2">Keterangan</th>
+                                    </tr>
+                                    <tr class="text-center">
+                                        <?php
+                                        foreach ($dates as $tgl) {
+                                            $pisah = explode("-", $tgl);
+                                            $tahuns = $pisah[0];
+                                            $bulans = $pisah[1];
+                                            $haris = $pisah[2];
+                                            $TglShow = $haris . "/" . $bulans . "/" . $tahuns;
+                                            echo "<td>" . $TglShow . "</td>";
+                                        }
+                                        ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <small>
+                                        <!-- Tampilkan Bahan  -->
+                                        <tr>
+                                            <th>I</th>
+                                            <th colspan="11">BAHAN-BAHAN</th>
                                         </tr>
-                                        <tr class="text-center">
-                                            <?php
-                                            foreach ($dates as $tgl) {
-                                                $pisah = explode("-", $tgl);
-                                                $tahuns = $pisah[0];
-                                                $bulans = $pisah[1];
-                                                $haris = $pisah[2];
-                                                $TglShow = $haris . "/" . $bulans . "/" . $tahuns;
-                                                echo "<td>" . $TglShow . "</td>";
-                                            }
-                                            ?>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <small>
-                                            <!-- Tampilkan Bahan  -->
+                                        <?php
+                                        $no = 1;
+                                        $Totalbahan = 0;
+                                        $kegiatanbahan = $this->report->LoadKegiatanBahan($lokasi['id_petak']);
+                                        foreach ($kegiatanbahan as $key) {
+                                            $MguLalu = $this->report->LoadBahanHarianLastBahan($key['id_spkbahan'], $tglmulai);
+                                            $realisasi = $this->report->LoadBahanMingguanRealisasi($key['id_spkbahan'], $lokasi['id_petak'])['total'];
+                                            $SpkBahan = $this->report->getSpkBahan($key['id_spkbahan']);
+                                        ?>
                                             <tr>
-                                                <th>I</th>
-                                                <th colspan="11">BAHAN-BAHAN</th>
+                                                <td class="text-right"><?= $no++ ?></td>
+                                                <td><?= $key['nm_kegiatan']; ?></td>
+                                                <td class="text-center"><?= $key['satuan']; ?></td>
+                                                <?php
+                                                foreach ($dates as $tgl) {
+                                                    echo "<td class='text-center'>" . $this->report->LoadBahanHarian($key['id_spkbahan'], $tgl) . "</td>";
+                                                    $Totalbahan = $Totalbahan + $this->report->LoadBahanHarian($key['id_spkbahan'], $tgl);
+                                                }
+                                                if ($Totalbahan > 0) {
+                                                    $ikonBahan = "<span class='badge badge-info'><i class='fas fa-fw fa-2x fa-arrow-alt-circle-up'></i><span class='align-top'>+" . $Totalbahan . "</span></span>";
+                                                } elseif ($realisasi >= $SpkBahan) {
+                                                    $ikonBahan = "<b class='text-success'><i class='fas fa-2x fa-check-square'></i></b>";
+                                                } else {
+                                                    $ikonBahan = "<b class='text-danger'><i class='fas fa-2x fa-info-circle'></i></b>";
+                                                }
+                                                $SdMingguIni = $MguLalu + $Totalbahan;
+                                                $Ket = $realisasi < $SpkBahan ? "PROSES" : "<b>LENGKAP</b>";
+                                                // $Ket = $Totalbahan < $SpkBahan ? "PROSES" : "LENGKAP";
+                                                ?>
+                                                <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $Totalbahan ?> Dari <?= $SpkBahan; ?>"><?= number_format($Totalbahan, 2, ',', '.'); ?></td>
+                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="left" title="Total sampai dengan <?= $bulan . " Minggu " . $minggu . " : " . $SdMingguIni ?> | Realisasi : <?= $realisasi . " | Rencana :" . $SpkBahan; ?>">
+                                                    <?= number_format($SdMingguIni, '2', '.', ',') . " <b> | </b> " . number_format($realisasi, 2, ',', '.') . "<b> | </b>" . number_format($key['nilai_spkbahan'], '2', ',', '.'); ?>
+                                                </td>
+                                                <td class="text-center"><?= $ikonBahan . " " . $Ket ?></td>
                                             </tr>
-                                            <?php
-                                            $no = 1;
+                                        <?php
                                             $Totalbahan = 0;
-                                            $kegiatanbahan = $this->report->LoadKegiatanBahan($lokasi['id_petak']);
-                                            foreach ($kegiatanbahan as $key) {
-                                                $MguLalu = $this->report->LoadBahanHarianLastBahan($key['id_spkbahan'], $tglmulai);
-                                            ?>
-                                                <tr>
-                                                    <td class="text-right"><?= $no++ ?></td>
-                                                    <td><?= $key['nm_kegiatan']; ?></td>
-                                                    <td class="text-center"><?= $key['satuan']; ?></td>
-                                                    <?php
-                                                    foreach ($dates as $tgl) {
-                                                        echo "<td class='text-center'>" . $this->report->LoadBahanHarian($key['id_spkbahan'], $tgl) . "</td>";
-                                                        $Totalbahan = $Totalbahan + $this->report->LoadBahanHarian($key['id_spkbahan'], $tgl);
-                                                    }
-                                                    $SpkBahan = $this->report->getSpkBahan($key['id_spkbahan']);
-                                                    $SdMingguIni = $MguLalu + $Totalbahan;
-                                                    $Ket = $SdMingguIni < $SpkBahan ? "PROSES" : "<b>LENGKAP</b>";
-                                                    // $Ket = $Totalbahan < $SpkBahan ? "PROSES" : "LENGKAP";
-                                                    ?>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $Totalbahan ?> Dari <?= $SpkBahan; ?>"><?= number_format($Totalbahan, 2, ',', '.'); ?></td>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkBahan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') . " <b> | </b> " . number_format($key['nilai_spkbahan'], '2', ',', '.'); ?></td>
-                                                    <td class="text-center"><?= $Ket ?></td>
-                                                </tr>
-                                            <?php
-                                                $Totalbahan = 0;
-                                            }
-                                            ?>
-                                            <!-- Tampilkan Bibit  -->
+                                        }
+                                        ?>
+                                        <!-- Tampilkan Bibit  -->
+                                        <tr>
+                                            <th>II</th>
+                                            <th colspan="11">PENGADAAN BIBIT SULAMAN</th>
+                                        </tr>
+                                        <?php
+                                        $no = 1;
+                                        $TotalBibit = 0;
+                                        $kegiatanbibit = $this->report->LoadKegiatanBibit($lokasi['id_petak']);
+                                        // echo "<pre>";
+                                        // print_r($kegiatanbibit);
+                                        $ResalisasiBibir = $this->report->ReaisasiSphBibit();
+                                        foreach ($kegiatanbibit as $keyb) {
+                                            $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $keyb['id_bibit']);
+                                            $realbibit = $this->report->loadRealBibit($keyb['id_bibit'], $lokasi['id_petak'])['total'];
+                                        ?>
                                             <tr>
-                                                <th>II</th>
-                                                <th colspan="11">PENGADAAN BIBIT SULAMAN</th>
+                                                <td class="text-right"><?= $no++ ?></td>
+                                                <td><?= $keyb['nm_bibit']; ?></td>
+                                                <td class="text-center"><?= $keyb['satuan']; ?></td>
+                                                <?php
+                                                foreach ($dates as $tgl) {
+                                                    echo "<td class='text-center'>" . $this->report->LoadBibitHarian($keyb['id_spkbibit'], $tgl, $keyb['id_bibit']) . "</td>";
+                                                    $TotalBibit = $TotalBibit + $this->report->LoadBibitHarian($keyb['id_spkbibit'], $tgl, $keyb['id_bibit']);
+                                                }
+                                                $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
+                                                $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
+                                                $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
+                                                $ket = $SdMingguIniBib['tot'] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
+                                                if ($TotalBibit > 0) {
+                                                    $ikonBi = "<span class='badge badge-info'><i class='fas fa-2x fa-arrow-alt-circle-up'></i><span class='align-top'>+" . $TotalBibit . "</span></span>";
+                                                } elseif ($realbibit >= $SpkBibit) {
+                                                    $ikonBi = "<b class='text-success'><i class='fas fa-2x fa-check-square'></i></b>";
+                                                } else {
+                                                    $ikonBi = "<b class='text-danger'><i class='fas fa-2x fa-info-circle'></i></b>";
+                                                }
+                                                ?>
+                                                <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalBibit ?> Dari <?= $SpkBibit; ?>"><?= $TotalBibit ?></td>
+                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="left" title="Total sampai dengan <?= $bulan . " Minggu " . $minggu . " : " . number_format($realbibit, 0, ',', '.') ?> | Realisasi : <?= number_format($SdMingguIniBib['tot'], 0, ',', '.') . " | Rencana :" .  number_format($SpkBibit, 0, ',', '.'); ?>">
+                                                    <?= number_format($SdMingguIniBibit, '2', '.', ',') . " <b> | </b>" . number_format($realbibit, 2, ',', '.') . " <b> | </b>" . number_format($keyb['nilai_spkbibit'], 2, ',', '.'); ?>
+                                                </td>
+                                                <td class="text-center"><?= $ikonBi . " " . $ket ?></td>
                                             </tr>
-                                            <?php
-                                            $no = 1;
+                                        <?php
                                             $TotalBibit = 0;
-                                            $kegiatanbibit = $this->report->LoadKegiatanBibit($lokasi['id_petak']);
-                                            // echo "<pre>";
-                                            // print_r($kegiatanbibit);
-                                            $ResalisasiBibir = $this->report->ReaisasiSphBibit();
-                                            foreach ($kegiatanbibit as $keyb) {
-                                                $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $keyb['id_bibit']);
-                                            ?>
-                                                <tr>
-                                                    <td class="text-right"><?= $no++ ?></td>
-                                                    <td><?= $keyb['nm_bibit']; ?></td>
-                                                    <td class="text-center"><?= $keyb['satuan']; ?></td>
-                                                    <?php
-                                                    foreach ($dates as $tgl) {
-                                                        echo "<td class='text-center'>" . $this->report->LoadBibitHarian($keyb['id_spkbibit'], $tgl, $keyb['id_bibit']) . "</td>";
-                                                        $TotalBibit = $TotalBibit + $this->report->LoadBibitHarian($keyb['id_spkbibit'], $tgl, $keyb['id_bibit']);
-                                                    }
-                                                    $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
-                                                    $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
-                                                    $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
-                                                    $ket = $SdMingguIniBib['tot'] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
-                                                    ?>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalBibit ?> Dari <?= $SpkBibit; ?>"><?= $TotalBibit ?></td>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIniBib['tot'] ?> Dari <?= $SpkBibit; ?>"><?= number_format($SdMingguIniBibit, '2', '.', ',') . " <b> | </b>" . number_format($keyb['nilai_spkbibit'], 2, ',', '.'); ?></td>
-                                                    <td class="text-center"><?= $ket ?></td>
-                                                </tr>
-                                            <?php
-                                                $TotalBibit = 0;
-                                            }
-                                            ?>
-                                            <!-- tampilkan lapangan  -->
+                                        }
+                                        ?>
+                                        <!-- tampilkan lapangan  -->
 
+                                        <tr>
+                                            <th>II</th>
+                                            <th colspan="11">KEGIATAN DI LAPANGAN</th>
+                                        </tr>
+                                        <?php
+                                        $no = 1;
+                                        $TotalLapangan = 0;
+                                        $kegiatanlapangan = $this->report->LoadKegiatanLapangan($lokasi['id_petak']);;
+                                        foreach ($kegiatanlapangan as $keyl) {
+                                            $MguLaluLapangan = $this->report->LoadLapanganHarianLast($keyl['id_spklapangan'], $tglmulai);
+                                            $realisasi = $this->report->loadRealMingguanLap($keyl['id_spklapangan'], $lokasi['id_petak'])['tot'];
+                                        ?>
                                             <tr>
-                                                <th>II</th>
-                                                <th colspan="11">KEGIATAN DI LAPANGAN</th>
+                                                <td class="text-right"><?= $no++ ?></td>
+                                                <td><?= $keyl['nm_kegiatan']; ?></td>
+                                                <td class="text-center"><?= $keyl['satuan']; ?></td>
+                                                <?php
+                                                foreach ($dates as $tgl) {
+                                                    echo "<td class='text-center'>" . $this->report->LoadLapanganHarian($keyl['id_spklapangan'], $tgl) . "</td>";
+                                                    $TotalLapangan = $TotalLapangan + $this->report->LoadLapanganHarian($keyl['id_spklapangan'], $tgl);
+                                                }
+                                                $SpkLapangan = $this->report->getSpkLapangan($keyl['id_spklapangan']);
+                                                $SdMingguIni = $MguLaluLapangan + $TotalLapangan;
+                                                $Ket = $realisasi < $SpkLapangan ? "PROSES" : "<b>LENGKAP</b>";
+                                                if ($TotalLapangan > 0) {
+                                                    $ikonLapangan = "<span class='badge badge-info'><i class='fas fa-fw fa-2x fa-arrow-alt-circle-up'></i><span class='align-top'>+" . $TotalLapangan . "</span></span>";
+                                                } elseif ($realisasi >= $SpkLapangan) {
+                                                    $ikonLapangan = "<b class='text-success'><i class='fas fa-2x fa-check-square'></i></b>";
+                                                } else {
+                                                    $ikonLapangan = "<b class='text-danger'><i class='fas fa-2x fa-info-circle'></i></b>";
+                                                }
+                                                ?>
+                                                <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalLapangan ?> Dari <?= $SpkLapangan; ?>"><?= $TotalLapangan ?></td>
+                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="left" title="Total sampai dengan <?= $bulan . " Minggu " . $minggu . " : " . number_format($SdMingguIni, 0, ',', '.') ?> | Realisasi : <?= number_format($realisasi, 0, ',', '.') . " | Rencana :" . number_format($SpkLapangan, 0, ',', '.'); ?>">
+                                                    <?= number_format($SdMingguIni, '2', '.', ',') . " <b> | </b> " . number_format($realisasi, 2, ',', '.')  . " <b> | </b> " . number_format($keyl['nilai_spklapangan'], 2, ',', '.'); ?>
+                                                </td>
+                                                <td class="text-center"><?= $ikonLapangan . " " . $Ket ?></td>
                                             </tr>
-                                            <?php
-                                            $no = 1;
+                                        <?php
                                             $TotalLapangan = 0;
-                                            $kegiatanlapangan = $this->report->LoadKegiatanLapangan($lokasi['id_petak']);;
-                                            foreach ($kegiatanlapangan as $keyl) {
-                                                $MguLaluLapangan = $this->report->LoadLapanganHarianLast($keyl['id_spklapangan'], $tglmulai);
-                                            ?>
-                                                <tr>
-                                                    <td class="text-right"><?= $no++ ?></td>
-                                                    <td><?= $keyl['nm_kegiatan']; ?></td>
-                                                    <td class="text-center"><?= $keyl['satuan']; ?></td>
-                                                    <?php
-                                                    foreach ($dates as $tgl) {
-                                                        echo "<td class='text-center'>" . $this->report->LoadLapanganHarian($keyl['id_spklapangan'], $tgl) . "</td>";
-                                                        $TotalLapangan = $TotalLapangan + $this->report->LoadLapanganHarian($keyl['id_spklapangan'], $tgl);
-                                                    }
-                                                    $SpkLapangan = $this->report->getSpkLapangan($keyl['id_spklapangan']);
-                                                    $SdMingguIni = $MguLaluLapangan + $TotalLapangan;
-                                                    $Ket = $SdMingguIni < $SpkLapangan ? "PROSES" : "<b>LENGKAP</b>";
-                                                    ?>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalLapangan ?> Dari <?= $SpkLapangan; ?>"><?= $TotalLapangan ?></td>
-                                                    <td class="text-right" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkLapangan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') . " <b> | </b> " . $keyl['nilai_spklapangan']; ?></td>
-                                                    <td class="text-center"><?= $Ket ?></td>
-                                                </tr>
-                                            <?php
-                                                $TotalLapangan = 0;
-                                            }
-                                            ?>
-                                        </small>
-                                    </tbody>
-                                </table>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            </small><br>
+                                        }
+                                        ?>
+                                    </small>
+                                </tbody>
+                            </table>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <br>
                         </div>
                     </div>
                 </div>
@@ -341,135 +370,141 @@
                             </tr>
                         </table>
                     </div>
-                    <div class="col-lg-12 text-1x scrol">
-                        <small class="m-5">
-                            <table class="table-bordered table-hover table-sm" width="100%" style="min-width: 999px;" border="1">
-                                <thead>
-                                    <tr class="text-uppercase text-center">
-                                        <th rowspan="2">No</th>
-                                        <th rowspan="2">Jenis Kegiatan</th>
-                                        <th colspan="2"">Rencana</th>
+                    <div class="col-lg-12 text-1x scrol" style="width: 100%; height:100%; font-size:14px;">
+                        <table class="table-bordered table-hover table-sm" width="100%" style="min-width: 999px;" border="1">
+                            <thead>
+                                <tr class="text-uppercase text-center">
+                                    <th rowspan="2">No</th>
+                                    <th rowspan="2">Jenis Kegiatan</th>
+                                    <th colspan="2"">Rencana</th>
                                         <th colspan=" 3">Progress Mingguan</th>
-                                        <th rowspan="2">Ket</th>
+                                    <th rowspan="2">Realisasi</th>
+                                    <th rowspan="2">Keterangan</th>
+                                </tr>
+                                <tr class=" text-uppercase text-center">
+                                    <th>Satuan</th>
+                                    <th>volume</th>
+                                    <th>S/D Minggu Lalu</th>
+                                    <th>Minggu Ini</th>
+                                    <th>S/D Minggu Ini</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <small>
+                                    <!-- Tampilkan Bahan  -->
+                                    <tr>
+                                        <th>I</th>
+                                        <th colspan="11">BAHAN-BAHAN</th>
                                     </tr>
-                                    <tr class=" text-uppercase text-center">
-                                        <th>Satuan</th>
-                                        <th>volume</th>
-                                        <th>S/D Minggu Lalu</th>
-                                        <th>Minggu Ini</th>
-                                        <th>S/D Minggu Ini</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <small>
-                                        <!-- Tampilkan Bahan  -->
+                                    <?php
+                                    $no = 1;
+                                    $Totalbahan = 0;
+                                    $kegiatanbahan = $this->report->LoadKegiatanBahan($lokasi['id_petak']);
+                                    foreach ($kegiatanbahan as $key) {
+                                        $MguLalu = $this->report->LoadBahanHarianLastBahan($key['id_spkbahan'], $tglmulai);
+                                        $realisasi = $this->report->LoadBahanMingguanRealisasi($key['id_spkbahan'], $lokasi['id_petak'])['total'];
+                                    ?>
                                         <tr>
-                                            <th>I</th>
-                                            <th colspan="11">BAHAN-BAHAN</th>
+                                            <td class="text-right"><?= $no++ ?></td>
+                                            <td><?= $key['nm_kegiatan']; ?></td>
+                                            <td class="text-center"><?= $key['satuan']; ?></td>
+                                            <td class="text-center"><?= number_format($key['nilai_spkbahan'], 2, '.', ','); ?></td>
+                                            <?php
+                                            foreach ($dates as $tgl) {
+                                                $Totalbahan = $Totalbahan + $this->report->LoadBahanHarian($key['id_spkbahan'], $tgl);
+                                            }
+                                            $SpkBahan = $this->report->getSpkBahan($key['id_spkbahan']);
+                                            $SdMingguIni = $MguLalu + $Totalbahan;
+                                            $Ket = $realisasi < $SpkBahan ? "PROSES" : "<b>LENGKAP</b>";
+                                            ?>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $MguLalu ?> Dari <?= $SpkBahan; ?>"><?= number_format($MguLalu, 2, '.', ','); ?></td>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $Totalbahan ?> Dari <?= $SpkBahan; ?>"><?= number_format($Totalbahan, '2', '.', ',') ?></td>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkBahan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') ?></td>
+                                            <td class="text-center"><?= number_format($realisasi, 2, ',', '.') ?></td>
+                                            <td class="text-center"><?= $Ket ?></td>
                                         </tr>
-                                        <?php
-                                        $no = 1;
+                                    <?php
                                         $Totalbahan = 0;
-                                        $kegiatanbahan = $this->report->LoadKegiatanBahan($lokasi['id_petak']);
-                                        foreach ($kegiatanbahan as $key) {
-                                            $MguLalu = $this->report->LoadBahanHarianLastBahan($key['id_spkbahan'], $tglmulai);
-                                        ?>
-                                            <tr>
-                                                <td class="text-right"><?= $no++ ?></td>
-                                                <td><?= $key['nm_kegiatan']; ?></td>
-                                                <td class="text-center"><?= $key['satuan']; ?></td>
-                                                <td class="text-center"><?= number_format($key['nilai_spkbahan'], 2, '.', ','); ?></td>
-                                                <?php
-                                                foreach ($dates as $tgl) {
-                                                    $Totalbahan = $Totalbahan + $this->report->LoadBahanHarian($key['id_spkbahan'], $tgl);
-                                                }
-                                                $SpkBahan = $this->report->getSpkBahan($key['id_spkbahan']);
-                                                $SdMingguIni = $MguLalu + $Totalbahan;
-                                                $Ket = $SdMingguIni < $SpkBahan ? "PROSES" : "<b>LENGKAP</b>";
-                                                ?>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $MguLalu ?> Dari <?= $SpkBahan; ?>"><?= number_format($MguLalu, 2, '.', ','); ?></td>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $Totalbahan ?> Dari <?= $SpkBahan; ?>"><?= number_format($Totalbahan, '2', '.', ',') ?></td>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkBahan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') ?></td>
-                                                <td class="text-center"><?= $Ket ?></td>
-                                            </tr>
-                                        <?php
-                                            $Totalbahan = 0;
-                                        }
-                                        ?>
-                                        <!-- Tampilkan Bibit  -->
+                                    }
+                                    ?>
+                                    <!-- Tampilkan Bibit  -->
+                                    <tr>
+                                        <th>II</th>
+                                        <th colspan="11">PENGADAAN BIBIT SULAMAN</th>
+                                    </tr>
+                                    <?php
+                                    $no = 1;
+                                    $TotalBibit = 0;
+                                    $kegiatanbibit = $this->report->LoadKegiatanBibit($lokasi['id_petak']);
+                                    $ResalisasiBibir = $this->report->ReaisasiSphBibit();
+                                    foreach ($kegiatanbibit as $keyb) {
+                                        $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $keyb['id_bibit']);
+                                        $realbibit = $this->report->loadRealBibit($keyb['id_bibit'], $lokasi['id_petak'])['total'];
+                                    ?>
                                         <tr>
-                                            <th>II</th>
-                                            <th colspan="11">PENGADAAN BIBIT SULAMAN</th>
+                                            <td class="text-right"><?= $no++ ?></td>
+                                            <td><?= $keyb['nm_bibit']; ?></td>
+                                            <td class="text-center"><?= $keyb['satuan']; ?></td>
+                                            <td class="text-center"><?= number_format($keyb['nilai_spkbibit'], 2, '.', ','); ?></td>
+                                            <?php
+                                            foreach ($dates as $tgl) {
+                                                $TotalBibit = $TotalBibit + $this->report->LoadBibitHarian($keyb['id_spkbibit'], $tgl, $keyb['id_bibit']);
+                                            }
+                                            $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
+                                            $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
+                                            $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
+                                            $ket = $realbibit < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
+                                            ?>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $MguLaluBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($MguLaluBibit, 2, '.', ','); ?></td>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($TotalBibit, '2', '.', ',') ?></td>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIniBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($SdMingguIniBibit, '2', '.', ',') ?></td>
+                                            <td class="text-center"><?= number_format($realbibit, 2, ',', '.'); ?> (<?= number_format($SdMingguIniBib['tot'], 0, ',', '.') ?>)</td>
+                                            <td class="text-center"><?= $ket; ?></td>
                                         </tr>
-                                        <?php
-                                        $no = 1;
+                                    <?php
                                         $TotalBibit = 0;
-                                        $kegiatanbibit = $this->report->LoadKegiatanBibit($lokasi['id_petak']);
-                                        $ResalisasiBibir = $this->report->ReaisasiSphBibit();
-                                        foreach ($kegiatanbibit as $keyb) {
-                                            $MguLaluBibit = $this->report->LoadBahanHarianLastBibit($keyb['id_spkbibit'], $tglmulai, $keyb['id_bibit']);
-                                        ?>
-                                            <tr>
-                                                <td class="text-right"><?= $no++ ?></td>
-                                                <td><?= $keyb['nm_bibit']; ?></td>
-                                                <td class="text-center"><?= $keyb['satuan']; ?></td>
-                                                <td class="text-center"><?= number_format($keyb['nilai_spkbibit'], 2, '.', ','); ?></td>
-                                                <?php
-                                                foreach ($dates as $tgl) {
-                                                    $TotalBibit = $TotalBibit + $this->report->LoadBibitHarian($keyb['id_spkbibit'], $tgl, $keyb['id_bibit']);
-                                                }
-                                                $SpkBibit = $this->report->getSpkBibit($keyb['id_spkbibit']);
-                                                $SdMingguIniBibit = $MguLaluBibit + $TotalBibit;
-                                                $SdMingguIniBib = $this->report->ReaisasiSphBibitReport($keyb['id_spkbibit'], $lokasi['id_petak']);
-                                                $ket = $SdMingguIniBib['tot'] < $SpkBibit ? "PROSES" : "<b>LENGKAP</b>";
-                                                ?>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $MguLaluBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($MguLaluBibit, 2, '.', ','); ?></td>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($TotalBibit, '2', '.', ',') ?></td>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIniBibit ?> Dari <?= $SpkBibit; ?>"><?= number_format($SdMingguIniBibit, '2', '.', ',') ?></td>
-                                                <td class="text-center"><?= $ket; ?></td>
-                                            </tr>
-                                        <?php
-                                            $TotalBibit = 0;
-                                        }
-                                        ?>
-                                        <!-- tampilkan lapangan  -->
+                                    }
+                                    ?>
+                                    <!-- tampilkan lapangan  -->
+                                    <tr>
+                                        <th>II</th>
+                                        <th colspan="11">KEGIATAN DI LAPANGAN</th>
+                                    </tr>
+                                    <?php
+                                    $no = 1;
+                                    $TotalLapangan = 0;
+                                    $kegiatanlapangan = $this->report->LoadKegiatanLapangan($lokasi['id_petak']);;
+                                    foreach ($kegiatanlapangan as $keyl) {
+                                        $MguLaluLapangan = $this->report->LoadLapanganHarianLast($keyl['id_spklapangan'], $tglmulai);
+                                        $realisasi = $this->report->loadRealMingguanLap($keyl['id_spklapangan'], $lokasi['id_petak'])['tot'];
+                                    ?>
                                         <tr>
-                                            <th>II</th>
-                                            <th colspan="11">KEGIATAN DI LAPANGAN</th>
+                                            <td class="text-right"><?= $no++ ?></td>
+                                            <td><?= $keyl['nm_kegiatan']; ?></td>
+                                            <td class="text-center"><?= $keyl['satuan']; ?></td>
+                                            <td class="text-center"><?= number_format($keyl['nilai_spklapangan'], 2, '.', ','); ?></td>
+                                            <?php
+                                            foreach ($dates as $tgl) {
+                                                $TotalLapangan = $TotalLapangan + $this->report->LoadLapanganHarian($keyl['id_spklapangan'], $tgl);
+                                            }
+                                            $SpkLapangan = $this->report->getSpkLapangan($keyl['id_spklapangan']);
+                                            $SdMingguIni = $MguLaluLapangan + $TotalLapangan;
+                                            $Ket = $realisasi < $SpkLapangan ? "PROSES" : "<b>LENGKAP</b>";
+                                            ?>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $MguLaluLapangan ?> Dari <?= $SpkLapangan; ?>"><?= number_format($MguLaluLapangan, 2, '.', ','); ?></td>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalLapangan ?> Dari <?= $SpkLapangan; ?>"><?= number_format($TotalLapangan, '2', '.', ',') ?></td>
+                                            <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkLapangan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') ?></td>
+                                            <td class="text-center"><?= number_format($realisasi, 2, ',', '.') ?></td>
+                                            <td class="text-center"><?= $Ket ?></td>
                                         </tr>
-                                        <?php
-                                        $no = 1;
+                                    <?php
                                         $TotalLapangan = 0;
-                                        $kegiatanlapangan = $this->report->LoadKegiatanLapangan($lokasi['id_petak']);;
-                                        foreach ($kegiatanlapangan as $keyl) {
-                                            $MguLaluLapangan = $this->report->LoadLapanganHarianLast($keyl['id_spklapangan'], $tglmulai);
-                                        ?>
-                                            <tr>
-                                                <td class="text-right"><?= $no++ ?></td>
-                                                <td><?= $keyl['nm_kegiatan']; ?></td>
-                                                <td class="text-center"><?= $keyl['satuan']; ?></td>
-                                                <td class="text-center"><?= number_format($keyl['nilai_spklapangan'], 2, '.', ','); ?></td>
-                                                <?php
-                                                foreach ($dates as $tgl) {
-                                                    $TotalLapangan = $TotalLapangan + $this->report->LoadLapanganHarian($keyl['id_spklapangan'], $tgl);
-                                                }
-                                                $SpkLapangan = $this->report->getSpkLapangan($keyl['id_spklapangan']);
-                                                $SdMingguIni = $MguLaluLapangan + $TotalLapangan;
-                                                $Ket = $SdMingguIni < $SpkLapangan ? "PROSES" : "<b>LENGKAP</b>";
-                                                ?>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $MguLaluLapangan ?> Dari <?= $SpkLapangan; ?>"><?= number_format($MguLaluLapangan, 2, '.', ','); ?></td>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $TotalLapangan ?> Dari <?= $SpkLapangan; ?>"><?= number_format($TotalLapangan, '2', '.', ',') ?></td>
-                                                <td class="text-center" style='cursor:pointer' data-toggle='tooltip' data-placement="top" title="<?= $SdMingguIni ?> Dari <?= $SpkLapangan; ?>"><?= number_format($SdMingguIni, '2', '.', ',') ?></td>
-                                                <td class="text-center"><?= $Ket ?></td>
-                                            </tr>
-                                        <?php
-                                            $TotalLapangan = 0;
-                                        }
-                                        ?>
-                                    </small>
-                                </tbody>
-                            </table>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        </small><br>
+                                    }
+                                    ?>
+                                </small>
+                            </tbody>
+                        </table>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <br>
                     </div>
                 </div>
             </div>
