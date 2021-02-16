@@ -1288,4 +1288,45 @@ class Report_model extends CI_Model
         $res = !empty($r[0]['tot']) ? $r[0]['tot'] : 0;
         return $res;
     }
+
+    // Grafik Mingguan Kabupaten (PolarArea chart)
+    public function LoadChartMingguanRealisasi($idkab)
+    {
+        $kuerispkbahan = $this->db->query("SELECT SUM(spkbahan.nilai_spkbahan) AS spkbahan FROM spkbahan, tb_petak, tb_blok, dt_desa, dt_kecamatan, dt_kabupaten WHERE spkbahan.id_petak=tb_petak.id_petak AND tb_petak.id_blok=tb_blok.id_blok AND tb_blok.id_desa=dt_desa.id_desa AND dt_desa.id_kecamatan=dt_kecamatan.id_kecamatan AND dt_kecamatan.id_kabupaten=dt_kabupaten.id_kabupaten AND dt_kabupaten.id_kabupaten='$idkab' ")->row_array();
+        $kuerispkbibit = $this->db->query("SELECT SUM(spkbibit.nilai_spkbibit) AS spkbibit FROM spkbibit, tb_petak, tb_blok, dt_desa, dt_kecamatan, dt_kabupaten WHERE spkbibit.id_petak=tb_petak.id_petak AND tb_petak.id_blok=tb_blok.id_blok AND tb_blok.id_desa=dt_desa.id_desa AND dt_desa.id_kecamatan=dt_kecamatan.id_kecamatan AND dt_kecamatan.id_kabupaten=dt_kabupaten.id_kabupaten AND dt_kabupaten.id_kabupaten='$idkab' ")->row_array();
+        $kuerispklapangan = $this->db->query("SELECT SUM(spklapangan.nilai_spklapangan) AS spklapangan FROM spklapangan, tb_petak, tb_blok, dt_desa, dt_kecamatan, dt_kabupaten WHERE spklapangan.id_petak=tb_petak.id_petak AND tb_petak.id_blok=tb_blok.id_blok AND tb_blok.id_desa=dt_desa.id_desa AND dt_desa.id_kecamatan=dt_kecamatan.id_kecamatan AND dt_kecamatan.id_kabupaten=dt_kabupaten.id_kabupaten AND dt_kabupaten.id_kabupaten='$idkab' ")->row_array();
+        // realisasi 
+        $kueriharianbahan = $this->db->query("SELECT SUM(nilai_harianbahan) AS harianbahan FROM `harianbahan` WHERE id_kab='$idkab' ")->row_array();
+        $kueriharianbibit = $this->db->query("SELECT SUM(nilai_harianbibit) AS harianbibit FROM `harianbibit` WHERE id_kab='$idkab' ")->row_array();
+        $kueriharianlapangan = $this->db->query("SELECT SUM(nilai_harianlapangan) AS harianlapangan FROM `harianlapangan` WHERE id_kab='$idkab' ")->row_array();
+        $bibit = $kueriharianbibit['harianbibit'] < 1 ? '0' : $kueriharianbibit['harianbibit'];
+        $data['bahanreal'] = $kueriharianbahan['harianbahan'] / $kuerispkbahan['spkbahan'] * 100;
+        $data['bibitreal'] = $bibit / $kuerispkbibit['spkbibit'] * 100;
+        $data['lapanganreal'] = $kueriharianlapangan['harianlapangan'] / $kuerispklapangan['spklapangan'] * 100;
+        return $data;
+    }
+    // Grafik Mingguan Kabupaten Line Chart 
+    public function LoadChartMingguanTglBahan($idkab)
+    {
+        $tglbahan = "SELECT tgl AS tglbahan FROM harianbahan WHERE id_kab='$idkab' GROUP BY tgl ORDER BY tgl ASC";
+        return $this->db->query($tglbahan)->result_array();
+    }
+    public function LoadChartMingguanTglBibitNotin($idkab)
+    {
+        $tglbibit = "SELECT tgl AS tglbibit FROM harianbibit WHERE id_kab='$idkab' AND tgl NOT IN (SELECT tgl FROM harianbahan WHERE id_kab = '$idkab') GROUP BY tgl ORDER BY tgl ASC";
+        return $this->db->query($tglbibit)->result_array();
+    }
+    public function LoadChartMingguanTglLapangan($idkab)
+    {
+        $tgllapangan = "SELECT tgl AS tgllapangan FROM harianlapangan WHERE id_kab='$idkab' AND tgl NOT IN (SELECT tgl FROM harianbahan WHERE id_kab = '$idkab') AND tgl NOT IN (SELECT tgl FROM harianbibit WHERE id_kab = '$idkab') GROUP BY tgl ORDER BY tgl ASC";
+        return $this->db->query($tgllapangan)->result_array();
+    }
+    public function LoadChartMingguanTglNilai($kab, $tgl)
+    {
+        $bahan = $this->db->query("SELECT count(id_harianbahan) AS jumbahan FROM harianbahan WHERE tgl = '$tgl' AND id_kab='$kab'")->row_array();
+        $bibit = $this->db->query("SELECT count(id_harianbibit) AS jumbibit FROM harianbibit WHERE tgl = '$tgl' AND id_kab='$kab'")->row_array();
+        $lapangan = $this->db->query("SELECT count(id_harianlapangan) AS jumlapangan FROM harianlapangan WHERE tgl = '$tgl' AND id_kab='$kab'")->row_array();
+        $data['nilai'] = $bahan['jumbahan'] + $bibit['jumbibit'] + $lapangan['jumlapangan'];
+        return $data;
+    }
 }

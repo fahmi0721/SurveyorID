@@ -36,7 +36,7 @@
             <?php
             }
             ?>
-            <div class="col-xl-12 mb-5">
+            <div class="col-xl-12 mb-3">
                 <div class="card border-left-warning shadow h-200 ml-0">
                     <div class="card-header">
                         <strong>Report Pengawasan dan Penilaian Mingguan <b>Kabupaten <?= $kab['nm_kabupaten']; ?> </b> ! </strong>
@@ -348,8 +348,8 @@
         <?php
         }
         ?>
-
     </div>
+    <?php include 'grafikmingguanKab.php'; ?>
     <!-- /.container-fluid -->
 
 </div>
